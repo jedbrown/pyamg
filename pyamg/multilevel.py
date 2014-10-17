@@ -11,7 +11,7 @@ import numpy as np
 __all__ = ['multilevel_solver', 'coarse_grid_solver']
 
 
-class multilevel_solver:
+class multilevel_solver(object):
     """Stores multigrid hierarchy and implements the multigrid cycle
 
     The class constructs the cycling process and points to the methods for
@@ -386,7 +386,7 @@ class multilevel_solver:
                         to be fgmres, or no acceleration')
 
             # Acceleration is being used
-            if isinstance(accel, basestring):
+            if isinstance(accel, str):
                 from pyamg import krylov
                 from scipy.sparse.linalg import isolve
 
@@ -668,8 +668,10 @@ def coarse_grid_solver(solver):
 
             lvl = multilevel_solver.level()
             lvl.A = A
-            fn = eval('smoothing.setup_' + str(solver))
-            relax = fn(lvl, **kwargs)
+            setupstr = 'setup_'+str(solver)
+            if hasattr(smoothing, setupstr):
+                solverfn = getattr(krylov, setupstr)
+            relax = solverfn(lvl, **kwargs)
             x = np.zeros_like(b)
             relax(A, x, b)
 
