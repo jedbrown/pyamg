@@ -1,5 +1,4 @@
-from numpy import array, zeros, sqrt, ravel, abs, max, dot, arange,\
-    conjugate, hstack, isnan, isinf
+from numpy import array, zeros, ravel, abs, max, dot, conjugate
 from scipy.sparse.linalg.isolve.utils import make_system
 from scipy.sparse.sputils import upcast
 from warnings import warn
@@ -95,7 +94,7 @@ def gmres_householder(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None,
     >>> A = poisson((10, 10))
     >>> b = numpy.ones((A.shape[0],))
     >>> (x, flag) = gmres(A, b, maxiter=2, tol=1e-8, orthog='householder')
-    >>> print norm(b - A*x)
+    >>> print(norm(b - A*x))
     6.5428213057
 
     References
@@ -174,13 +173,13 @@ def gmres_householder(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None,
     # Prep for method
     r = b - ravel(A*x)
 
-    #Apply preconditioner
+    # Apply preconditioner
     r = ravel(M*r)
     normr = norm(r)
     if keep_r:
         residuals.append(normr)
-    ## Check for nan, inf
-    #if isnan(r).any() or isinf(r).any():
+    # Check for nan, inf
+    # if isnan(r).any() or isinf(r).any():
     #    warn('inf or nan after application of preconditioner')
     #    return(postprocess(x), -1)
 
@@ -237,23 +236,23 @@ def gmres_householder(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None,
             v = -2.0*conjugate(w[inner])*w
             v[inner] = v[inner] + 1.0
             # (2) Calculate the rest, v = P_1*P_2*P_3...P_{j-1}*ej.
-            #for j in range(inner-1,-1,-1):
+            # for j in range(inner-1,-1,-1):
             #    v -= 2.0*dot(conjugate(W[j,:]), v)*W[j,:]
             amg_core.apply_householders(v, ravel(W), dimen, inner-1, -1, -1)
 
             # Calculate new search direction
             v = ravel(A*v)
 
-            #Apply preconditioner
+            # Apply preconditioner
             v = ravel(M*v)
-            ## Check for nan, inf
-            #if isnan(v).any() or isinf(v).any():
+            # Check for nan, inf
+            # if isnan(v).any() or isinf(v).any():
             #    warn('inf or nan after application of preconditioner')
             #    return(postprocess(x), -1)
 
             # Factor in all Householder orthogonal reflections on new search
             # direction
-            #for j in range(inner+1):
+            # for j in range(inner+1):
             #    v -= 2.0*dot(conjugate(W[j,:]), v)*W[j,:]
             amg_core.apply_householders(v, ravel(W), dimen, 0, inner+1, 1)
 
@@ -332,15 +331,15 @@ def gmres_householder(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None,
         # Find best update to x in Krylov Space, V.  Solve inner+1 x inner+1
         # system.  Apparently this is the best way to solve a triangular system
         # in the magical world of scipy
-        #piv = arange(inner+1)
-        #y = lu_solve((H[0:(inner+1), 0:(inner+1)], piv), g[0:(inner+1)],
+        # piv = arange(inner+1)
+        # y = lu_solve((H[0:(inner+1), 0:(inner+1)], piv), g[0:(inner+1)],
         #             trans=0)
         y = scipy.linalg.solve(H[0:(inner+1), 0:(inner+1)], g[0:(inner+1)])
 
         # Use Horner like Scheme to map solution, y, back to original space.
         # Note that we do not use the last reflector.
         update = zeros(x.shape, dtype=xtype)
-        #for j in range(inner,-1,-1):
+        # for j in range(inner,-1,-1):
         #    update[j] += y[j]
         #    # Apply j-th reflector, (I - 2.0*w_j*w_j.T)*upadate
         #    update -= 2.0*dot(conjugate(W[j,:]), update)*W[j,:]
@@ -350,11 +349,11 @@ def gmres_householder(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None,
         x[:] = x + update
         r = b - ravel(A*x)
 
-        #Apply preconditioner
+        # Apply preconditioner
         r = ravel(M*r)
         normr = norm(r)
-        ## Check for nan, inf
-        #if isnan(r).any() or isinf(r).any():
+        # Check for nan, inf
+        # if isnan(r).any() or isinf(r).any():
         #    warn('inf or nan after application of preconditioner')
         #    return(postprocess(x), -1)
 
@@ -386,31 +385,31 @@ if __name__ == '__main__':
     # A = A*A.transpose() + diag([10, 10, 10, 10])
     # b = random((4, 1))
     # x0 = random((4, 1))
-    #%timeit -n 15 (x, flag) = gmres(A, b, x0, tol=1e-8, maxiter=100)
+    # %timeit -n 15 (x, flag) = gmres(A, b, x0, tol=1e-8, maxiter=100)
 
     from numpy.random import random
     from pyamg.gallery import poisson
     A = poisson((125, 125), dtype=float, format='csr')
-    #A.data = A.data + 0.001j*rand(A.data.shape[0])
+    # A.data = A.data + 0.001j*rand(A.data.shape[0])
     b = random((A.shape[0],))
     x0 = random((A.shape[0],))
 
     import time
     from scipy.sparse.linalg.isolve import gmres as igmres
 
-    print '\n\nTesting GMRES with %d x %d 2D Laplace Matrix' % \
-          (A.shape[0], A.shape[0])
+    print('\n\nTesting GMRES with %d x %d 2D Laplace Matrix' %
+          (A.shape[0], A.shape[0]))
     t1 = time.time()
     (x, flag) = gmres_householder(A, b, x0, tol=1e-8, maxiter=500)
     t2 = time.time()
-    print '%s took %0.3f ms' % ('gmres', (t2-t1)*1000.0)
-    print 'norm = %g' % (norm(b - A*x))
-    print 'info flag = %d' % (flag)
+    print('%s took %0.3f ms' % ('gmres', (t2-t1)*1000.0))
+    print('norm = %g' % (norm(b - A*x)))
+    print('info flag = %d' % (flag))
 
     t1 = time.time()
     # DON"T Enforce a maxiter as scipy gmres can't handle it correctly
     (y, flag) = igmres(A, b, x0, tol=1e-8)
     t2 = time.time()
-    print '\n%s took %0.3f ms' % ('linalg gmres', (t2-t1)*1000.0)
-    print 'norm = %g' % (norm(b - A*y))
-    print 'info flag = %d' % (flag)
+    print('\n%s took %0.3f ms' % ('linalg gmres', (t2-t1)*1000.0))
+    print('norm = %g' % (norm(b - A*y)))
+    print('info flag = %d' % (flag))

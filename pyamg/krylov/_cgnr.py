@@ -1,4 +1,4 @@
-from numpy import array, inner, conjugate, ceil, asmatrix, mod
+from numpy import inner, ceil, asmatrix, mod
 from scipy.sparse import isspmatrix
 from scipy.sparse.sputils import upcast
 from scipy.sparse.linalg.isolve.utils import make_system
@@ -72,7 +72,7 @@ def cgnr(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None,
     >>> A = poisson((10,10))
     >>> b = numpy.ones((A.shape[0],))
     >>> (x,flag) = cgnr(A,b, maxiter=2, tol=1e-8)
-    >>> print norm(b - A*x)
+    >>> print(norm(b - A*x))
     9.3910201849
 
     References
@@ -87,7 +87,7 @@ def cgnr(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None,
     if isspmatrix(A):
         AH = A.H
     else:
-        #TODO avoid doing this since A may be a different sparse type
+        # TODO avoid doing this since A may be a different sparse type
         AH = aslinearoperator(asmatrix(A).H)
 
     # Convert inputs to linear system, with error checking
@@ -206,38 +206,35 @@ def cgnr(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None,
 
     return (postprocess(x), iter+1)
 
-
-
-#if __name__ == '__main__':
-#    # from numpy import diag
-#    # A = random((4,4))
-#    # A = A*A.transpose() + diag([10,10,10,10])
-#    # b = random((4,1))
-#    # x0 = random((4,1))
+# if __name__ == '__main__':
+#     # from numpy import diag
+#     # A = random((4,4))
+#     # A = A*A.transpose() + diag([10,10,10,10])
+#     # b = random((4,1))
+#     # x0 = random((4,1))
 #
-#    from pyamg.gallery import stencil_grid
-#    from numpy.random import random
-#    A = stencil_grid([[0,-1,0],[-1,4,-1],[0,-1,0]],(150,150),\
-#                     dtype=float,format='csr')
-#    b = random((A.shape[0],))
-#    x0 = random((A.shape[0],))
+#     from pyamg.gallery import stencil_grid
+#     from numpy.random import random
+#     A = stencil_grid([[0,-1,0],[-1,4,-1],[0,-1,0]],(150,150),\
+#                      dtype=float,format='csr')
+#     b = random((A.shape[0],))
+#     x0 = random((A.shape[0],))
 #
-#    import time
-#    from scipy.sparse.linalg.isolve import cg as icg
+#     import time
+#     from scipy.sparse.linalg.isolve import cg as icg
 #
-#    print '\n\nTesting CGNR with %d x %d 2D Laplace Matrix'%\
-#           (A.shape[0],A.shape[0])
-#    t1=time.time()
-#    (x,flag) = cgnr(A,b,x0,tol=1e-8,maxiter=100)
-#    t2=time.time()
-#    print '%s took %0.3f ms' % ('cgnr', (t2-t1)*1000.0)
-#    print 'norm = %g'%(norm(b - A*x))
-#    print 'info flag = %d'%(flag)
+#     print('\n\nTesting CGNR with %d x %d 2D Laplace Matrix'%\
+#            (A.shape[0],A.shape[0]))
+#     t1=time.time()
+#     (x,flag) = cgnr(A,b,x0,tol=1e-8,maxiter=100)
+#     t2=time.time()
+#     print('%s took %0.3f ms' % ('cgnr', (t2-t1)*1000.0))
+#     print('norm = %g'%(norm(b - A*x)))
+#     print('info flag = %d'%(flag))
 #
-#    t1=time.time()
-#    (y,flag) = icg(A,b,x0,tol=1e-8,maxiter=100)
-#    t2=time.time()
-#    print '\n%s took %0.3f ms' % ('linalg cg', (t2-t1)*1000.0)
-#    print 'norm = %g'%(norm(b - A*y))
-#    print 'info flag = %d'%(flag)
-#
+#     t1=time.time()
+#     (y,flag) = icg(A,b,x0,tol=1e-8,maxiter=100)
+#     t2=time.time()
+#     print('\n%s took %0.3f ms' % ('linalg cg', (t2-t1)*1000.0))
+#     print('norm = %g'%(norm(b - A*y)))
+#     print('info flag = %d'%(flag))

@@ -58,7 +58,7 @@ def diffusion_stencil_2d(epsilon=1.0, theta=0.0, type='FE'):
     >>> import scipy
     >>> from pyamg.gallery.diffusion import diffusion_stencil_2d
     >>> sten = diffusion_stencil_2d(epsilon=0.0001,theta=scipy.pi/6,type='FD')
-    >>> print sten
+    >>> print(sten)
     [[-0.2164847 -0.750025   0.2164847]
      [-0.250075   2.0002    -0.250075 ]
      [ 0.2164847 -0.750025  -0.2164847]]
@@ -161,7 +161,7 @@ def _symbolic_rotation_helper():
 
     for i in range(3):
         for j in range(3):
-            print 'D[%d, %d] = %s' % (i, j, D[i, j])
+            print('D[%d, %d] = %s' % (i, j, D[i, j]))
 
 
 def _symbolic_product_helper():
@@ -181,7 +181,7 @@ def _symbolic_product_helper():
 
     a = div * D * grad
 
-    print a[0]
+    print(a[0])
 
 
 def diffusion_stencil_3d(epsilony=1.0, epsilonz=1.0, theta=0.0, phi=0.0,
@@ -264,7 +264,7 @@ def diffusion_stencil_3d(epsilony=1.0, epsilonz=1.0, theta=0.0, phi=0.0,
     >>> import scipy
     >>> from pyamg.gallery.diffusion import diffusion_stencil_2d
     >>> sten = diffusion_stencil_2d(epsilon=0.0001,theta=scipy.pi/6,type='FD')
-    >>> print sten
+    >>> print(sten)
     [[-0.2164847 -0.750025   0.2164847]
      [-0.250075   2.0002    -0.250075 ]
      [ 0.2164847 -0.750025  -0.2164847]]

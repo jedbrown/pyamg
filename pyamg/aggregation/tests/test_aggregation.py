@@ -213,9 +213,9 @@ class TestSolverPerformance(TestCase):
 
             avg_convergence_ratio =\
                 (residuals[-1] / residuals[0]) ** (1.0 / len(residuals))
-            # print "Real Test:   %1.3e,  %1.3e,  %d,  %1.3e" % \
-            #   (avg_convergence_ratio, c_factor, len(ml.levels),
-            #    ml.operator_complexity())
+            # print("Real Test:   %1.3e,  %1.3e,  %d,  %1.3e" % \
+            #   (avg_convergence_ratio, c_factor, len(ml.levels),\
+            #    ml.operator_complexity()))
 
             assert(avg_convergence_ratio < c_factor)
 
@@ -243,8 +243,8 @@ class TestSolverPerformance(TestCase):
         avg_convergence_ratio =\
             (residuals[-1] / residuals[0]) ** (1.0 / len(residuals))
 
-        # print "Diagonal Scaling Test:   %1.3e,  %1.3e" %
-        # (avg_convergence_ratio, 0.25)
+        # print("Diagonal Scaling Test:   %1.3e,  %1.3e" %
+        # (avg_convergence_ratio, 0.25))
         assert(avg_convergence_ratio < 0.25)
 
     def test_improve_candidates(self):
@@ -279,9 +279,9 @@ class TestSolverPerformance(TestCase):
                     last_rho = rho
                 else:
                     # each successive improve_candidates option should be an
-                    # improvement on the previous print "\nimprove_candidates
-                    # Test: %1.3e, %1.3e,
-                    # %d\n"%(rho,rho_scale*last_rho,A.shape[0])
+                    # improvement on the previous
+                    # print("\nimprove_candidates Test: %1.3e, %1.3e,\
+                    # %d\n"%(rho,rho_scale*last_rho,A.shape[0]))
                     assert(rho < rho_scale * last_rho)
                     last_rho = rho
 
@@ -481,9 +481,9 @@ class TestComplexSolverPerformance(TestCase):
             avg_convergence_ratio =\
                 (residuals[-1] / residuals[0]) ** (1.0 / len(residuals))
 
-            # print "Complex Test:   %1.3e,  %1.3e,  %d,  %1.3e" % \
-            #    (avg_convergence_ratio, c_factor,
-            #     len(ml.levels), ml.operator_complexity())
+            # print("Complex Test:   %1.3e,  %1.3e,  %d,  %1.3e" % \
+            #    (avg_convergence_ratio, c_factor,\
+            #     len(ml.levels), ml.operator_complexity()))
             assert(avg_convergence_ratio < c_factor)
 
     def test_nonhermitian(self):

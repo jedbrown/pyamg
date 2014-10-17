@@ -849,7 +849,7 @@ def algebraic_distance(A, alpha=0.5, R=5, k=20, theta=0.1, p=2):
 
     Does not handle BSR matrices yet.
     """
-    print A.format
+    print(A.format)
     if not sparse.isspmatrix_csr(A):
         warn("Implicit conversion of A to csr", sparse.SparseEfficiencyWarning)
         A = sparse.csr_matrix(A)

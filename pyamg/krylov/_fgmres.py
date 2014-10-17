@@ -1,6 +1,5 @@
 from warnings import warn
-from numpy import array, zeros, sqrt, ravel, abs, max, dot, arange, \
-    conjugate, hstack, ceil, isnan, isinf
+from numpy import array, zeros, ravel, abs, max, dot, conjugate
 from scipy.sparse.linalg.isolve.utils import make_system
 from scipy.sparse.sputils import upcast
 from pyamg.util.linalg import norm
@@ -100,7 +99,7 @@ def fgmres(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None,
     >>> A = poisson((10,10))
     >>> b = numpy.ones((A.shape[0],))
     >>> (x,flag) = fgmres(A,b, maxiter=2, tol=1e-8)
-    >>> print norm(b - A*x)
+    >>> print(norm(b - A*x))
     6.5428213057
 
     References
@@ -226,14 +225,14 @@ def fgmres(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None,
             v = -2.0*conjugate(w[inner])*w
             v[inner] += 1.0
             # (2) Calculate the rest, v = P_1*P_2*P_3...P_{j-1}*ej.
-            #for j in range(inner-1,-1,-1):
+            # for j in range(inner-1,-1,-1):
             #    v = v - 2.0*dot(conjugate(W[j,:]), v)*W[j,:]
             amg_core.apply_householders(v, ravel(W), dimen, inner-1, -1, -1)
 
-            #Apply preconditioner
+            # Apply preconditioner
             v = ravel(M*v)
-            ## Check for nan, inf
-            #if isnan(v).any() or isinf(v).any():
+            # Check for nan, inf
+            # if isnan(v).any() or isinf(v).any():
             #    warn('inf or nan after application of preconditioner')
             #    return(postprocess(x), -1)
             Z[:, inner] = v
@@ -243,7 +242,7 @@ def fgmres(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None,
 
             # Factor in all Householder orthogonal reflections on new search
             # direction
-            #for j in range(inner+1):
+            # for j in range(inner+1):
             #    v = v - 2.0*dot(conjugate(W[j,:]), v)*W[j,:]
             amg_core.apply_householders(v, ravel(W), dimen, 0, inner+1, 1)
 

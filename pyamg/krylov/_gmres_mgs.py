@@ -1,7 +1,7 @@
 from numpy import array, zeros, sqrt, ravel, abs, max, arange, conjugate, hstack, isnan, isinf, iscomplex, real, iscomplexobj
 from scipy.sparse.linalg.isolve.utils import make_system
 from scipy.sparse.sputils import upcast
-from scipy.linalg import get_blas_funcs 
+from scipy.linalg import get_blas_funcs
 from warnings import warn
 from pyamg import amg_core
 import scipy
@@ -12,13 +12,13 @@ __all__ = ['gmres_mgs']
 
 
 def apply_givens(Q, v, k):
-    ''' 
-    Apply the first k Givens rotations in Q to v 
-    
+    '''
+    Apply the first k Givens rotations in Q to v
+
     Parameters
     ----------
-    Q : {list} 
-        list of consecutive 2x2 Givens rotations 
+    Q : {list}
+        list of consecutive 2x2 Givens rotations
     v : {array}
         vector to apply the rotations to
     k : {int}
@@ -56,15 +56,15 @@ def gmres_mgs(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None, M=
         initial guess, default is a vector of zeros
     tol : float
         relative convergence tolerance, i.e. tol is scaled by the norm
-        of the initial preconditioned residual 
+        of the initial preconditioned residual
     restrt : {None, int}
         - if int, restrt is max number of inner iterations
           and maxiter is the max number of outer iterations
         - if None, do not restart GMRES, and max number of inner iterations is maxiter
     maxiter : {None, int}
-        - if restrt is None, maxiter is the max number of inner iterations 
-          and GMRES does not restart  
-        - if restrt is int, maxiter is the max number of outer iterations, 
+        - if restrt is None, maxiter is the max number of inner iterations
+          and GMRES does not restart
+        - if restrt is int, maxiter is the max number of outer iterations,
           and restrt is the max number of inner iterations
     xtype : type
         dtype for the solution, default is automatic type detection
@@ -75,17 +75,17 @@ def gmres_mgs(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None, M=
         callback( ||rk||_2 ), where rk is the current preconditioned residual vector
     residuals : list
         residuals contains the preconditioned residual norm history,
-        including the initial residual.  
+        including the initial residual.
     reorth : boolean
-        If True, then a check is made whether to re-orthogonalize the Krylov 
+        If True, then a check is made whether to re-orthogonalize the Krylov
         space each GMRES iteration
 
     Returns
-    -------    
+    -------
     (xNew, info)
     xNew : an updated guess to the solution of Ax = b
     info : halting status of gmres
-        
+
             ==  =============================================
             0   successful exit
             >0  convergence to tolerance not achieved,
@@ -102,28 +102,28 @@ def gmres_mgs(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None, M=
           still supported as a legacy.
         - For robustness, modified Gram-Schmidt is used to orthogonalize the Krylov Space
           Givens Rotations are used to provide the residual norm each iteration
-    
+
     Examples
     --------
     >>> from pyamg.krylov import gmres
     >>> from pyamg.util.linalg import norm
-    >>> import numpy 
+    >>> import numpy
     >>> from pyamg.gallery import poisson
     >>> A = poisson((10,10))
     >>> b = numpy.ones((A.shape[0],))
     >>> (x,flag) = gmres(A,b, maxiter=2, tol=1e-8, orthog='mgs')
-    >>> print norm(b - A*x)
+    >>> print(norm(b - A*x))
     >>> 6.5428213057
 
     References
     ----------
-    .. [1] Yousef Saad, "Iterative Methods for Sparse Linear Systems, 
+    .. [1] Yousef Saad, "Iterative Methods for Sparse Linear Systems,
        Second Edition", SIAM, pp. 151-172, pp. 272-275, 2003
        http://www-users.cs.umn.edu/~saad/books.html
 
     .. [2] C. T. Kelley, http://www4.ncsu.edu/~ctk/matlab_roots.html
     '''
-    # Convert inputs to linear system, with error checking  
+    # Convert inputs to linear system, with error checking
     A,M,x,b,postprocess = make_system(A,M,x0,b,xtype)
     dimen = A.shape[0]
 
@@ -142,7 +142,7 @@ def gmres_mgs(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None, M=
     else:
         Mtype = M.dtype
     xtype = upcast(Atype, x.dtype, b.dtype, Mtype)
-    
+
     if restrt is not None:
         restrt=int(restrt)
     if maxiter is not None:
@@ -152,7 +152,7 @@ def gmres_mgs(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None, M=
     # dotc is the conjugate dot, dotu does no conjugation
     if iscomplexobj( zeros((1,),dtype=xtype) ):
         [axpy,dotu,dotc,scal,rotg] = get_blas_funcs(['axpy', 'dotu', 'dotc', 'scal', 'rotg'], [x])
-    else:    
+    else:
         # real type
         [axpy,dotu,dotc,scal,rotg] = get_blas_funcs(['axpy', 'dot', 'dot',  'scal', 'rotg'], [x])
 
@@ -193,47 +193,47 @@ def gmres_mgs(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None, M=
 
     # Prep for method
     r = b - ravel(A*x)
-    
-    #Apply preconditioner
+
+    # Apply preconditioner
     r = ravel(M*r)
     normr = norm(r)
     if keep_r:
         residuals.append(normr)
-    ## Check for nan, inf    
-    #if isnan(r).any() or isinf(r).any():
+    # Check for nan, inf
+    # if isnan(r).any() or isinf(r).any():
     #    warn('inf or nan after application of preconditioner')
     #    return(postprocess(x), -1)
-    
-    # Check initial guess ( scaling by b, if b != 0, 
+
+    # Check initial guess ( scaling by b, if b != 0,
     #   must account for case when norm(b) is very small)
     normb = norm(b)
     if normb == 0.0:
         normb = 1.0
     if normr < tol*normb:
-        if callback != None:    
+        if callback != None:
             callback(norm(r))
         return (postprocess(x), 0)
 
     # Scale tol by ||r_0||_2, we use the preconditioned residual
     # because this is left preconditioned GMRES.
     if normr != 0.0:
-        tol = tol*normr    
+        tol = tol*normr
 
-    # Use separate variable to track iterations.  If convergence fails, we cannot 
-    # simply report niter = (outer-1)*max_outer + inner.  Numerical error could cause 
+    # Use separate variable to track iterations.  If convergence fails, we cannot
+    # simply report niter = (outer-1)*max_outer + inner.  Numerical error could cause
     # the inner loop to halt while the actual ||r|| > tol.
     niter = 0
 
     # Begin GMRES
     for outer in xrange(max_outer):
-        
+
         # Preallocate for Givens Rotations, Hessenberg matrix and Krylov Space
-        # Space required is O(dimen*max_inner).  
-        # NOTE:  We are dealing with row-major matrices, so we traverse in a row-major fashion, 
+        # Space required is O(dimen*max_inner).
+        # NOTE:  We are dealing with row-major matrices, so we traverse in a row-major fashion,
         #        i.e., H and V's transpose is what we store.
         Q = []                                                 # Givens Rotations
-        H = zeros( (max_inner+1, max_inner+1), dtype=xtype)    # Upper Hessenberg matrix, which is then 
-                                                               #   converted to upper tri with Givens Rots 
+        H = zeros( (max_inner+1, max_inner+1), dtype=xtype)    # Upper Hessenberg matrix, which is then
+                                                               #   converted to upper tri with Givens Rots
         V = zeros( (max_inner+1, dimen), dtype=xtype)          # Krylov Space
         vs = []                                                # vs store the pointers to each column of V.
                                                                #   This saves a considerable amount of time.
@@ -243,19 +243,19 @@ def gmres_mgs(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None, M=
         vs.append(V[0,:])
 
         # This is the RHS vector for the problem in the Krylov Space
-        g = zeros((dimen,), dtype=xtype) 
+        g = zeros((dimen,), dtype=xtype)
         g[0] = normr
 
         for inner in xrange(max_inner):
-            
+
             # New Search Direction
             v = V[inner+1,:]
             v[:] = ravel(M*(A*vs[-1]))
             vs.append(v)
             normv_old = norm(v)
 
-            ## Check for nan, inf    
-            #if isnan(V[inner+1, :]).any() or isinf(V[inner+1, :]).any():
+            # Check for nan, inf
+            # if isnan(V[inner+1, :]).any() or isinf(V[inner+1, :]).any():
             #    warn('inf or nan after application of preconditioner')
             #    return(postprocess(x), -1)
 
@@ -280,43 +280,43 @@ def gmres_mgs(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None, M=
             # Check for breakdown
             if H[inner, inner+1] != 0.0:
                 v[:] = scal(1.0/H[inner, inner+1], v)
-            
+
             # Apply previous Givens rotations to H
             if inner > 0:
                 apply_givens(Q, H[inner,:], inner)
-                
+
             # Calculate and apply next complex-valued Givens Rotation
-            # ==> Note that if max_inner = dimen, then this is unnecessary for the last inner 
-            #     iteration, when inner = dimen-1.  
+            # ==> Note that if max_inner = dimen, then this is unnecessary for the last inner
+            #     iteration, when inner = dimen-1.
             if inner != dimen-1:
                 if H[inner, inner+1] != 0:
                     [c,s] = rotg(H[inner, inner], H[inner, inner+1])
                     Qblock = array([[c, s], [-conjugate(s), c]], dtype=xtype)
                     Q.append(Qblock)
-                    
-                    # Apply Givens Rotation to g, 
+
+                    # Apply Givens Rotation to g,
                     #   the RHS for the linear system in the Krylov Subspace.
                     g[inner:inner+2] = scipy.dot(Qblock, g[inner:inner+2])
-                    
+
                     # Apply effect of Givens Rotation to H
-                    H[inner, inner] = dotu(Qblock[0,:], H[inner, inner:inner+2]) 
+                    H[inner, inner] = dotu(Qblock[0,:], H[inner, inner:inner+2])
                     H[inner, inner+1] = 0.0
-                  
+
             niter += 1
-            
-            # Don't update normr if last inner iteration, because 
+
+            # Don't update normr if last inner iteration, because
             # normr is calculated directly after this loop ends.
             if inner < max_inner-1:
                 normr = abs(g[inner+1])
                 if normr < tol:
                     break
-                
+
                 # Allow user access to residual
                 if callback != None:
                     callback( normr )
                 if keep_r:
                     residuals.append(normr)
-            
+
         # end inner loop, back to outer loop
 
         # Find best update to x in Krylov Space, V.  Solve inner x inner system.
@@ -325,20 +325,20 @@ def gmres_mgs(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None, M=
         x = x + update
         r = b - ravel(A*x)
 
-        #Apply preconditioner
+        # Apply preconditioner
         r = ravel(M*r)
         normr = norm(r)
-        ## Check for nan, inf    
-        #if isnan(r).any() or isinf(r).any():
+        # Check for nan, inf
+        # if isnan(r).any() or isinf(r).any():
         #    warn('inf or nan after application of preconditioner')
         #    return(postprocess(x), -1)
-        
+
         # Allow user access to residual
         if callback != None:
             callback( normr )
         if keep_r:
             residuals.append(normr)
-        
+
         # Has GMRES stagnated?
         indices = (x != 0)
         if indices.any():
@@ -346,13 +346,13 @@ def gmres_mgs(A, b, x0=None, tol=1e-5, restrt=None, maxiter=None, xtype=None, M=
             if change < 1e-12:
                 # No change, halt
                 return (postprocess(x), -1)
-    
+
         # test for convergence
         if normr < tol:
             return (postprocess(x),0)
-            
+
     # end outer loop
-    
+
 
     return (postprocess(x), niter)
 
@@ -365,34 +365,34 @@ if __name__ == '__main__':
     # b = random((4,1))
     # x0 = random((4,1))
     #%timeit -n 15 (x,flag) = gmres(A,b,x0,tol=1e-8,maxiter=100)
-    
+
     from scipy.sparse import eye as speye
     from scipy import rand
     from pyamg.gallery import poisson
     from numpy.random import random
     from pyamg.util.linalg import norm
-    A = poisson( (125,125), dtype=float,format='csr') 
-    #A.data = A.data + 0.001j*rand(A.data.shape[0])
+    A = poisson( (125,125), dtype=float,format='csr')
+    # A.data = A.data + 0.001j*rand(A.data.shape[0])
     b = random((A.shape[0],))
     x0 = random((A.shape[0],))
 
     import time
     from scipy.sparse.linalg.isolve import gmres as igmres
 
-    print '\n\nTesting GMRES with %d x %d 2D Laplace Matrix'%(A.shape[0],A.shape[0])
+    print('\n\nTesting GMRES with %d x %d 2D Laplace Matrix'%(A.shape[0],A.shape[0]))
     t1=time.time()
     (x,flag) = gmres_mgs(A,b,x0,tol=1e-8,maxiter=500)
     t2=time.time()
-    print '%s took %0.3f ms' % ('gmres', (t2-t1)*1000.0)
-    print 'norm = %g'%(norm(b - A*x))
-    print 'info flag = %d'%(flag)
+    print('%s took %0.3f ms' % ('gmres', (t2-t1)*1000.0))
+    print('norm = %g'%(norm(b - A*x)))
+    print('info flag = %d'%(flag))
 
     t1=time.time()
     # DON"T Enforce a maxiter as scipy gmres can't handle it correctly
     (y,flag) = igmres(A,b,x0,tol=1e-8)
     t2=time.time()
-    print '\n%s took %0.3f ms' % ('linalg gmres', (t2-t1)*1000.0)
-    print 'norm = %g'%(norm(b - A*y))
-    print 'info flag = %d'%(flag)
+    print('\n%s took %0.3f ms' % ('linalg gmres', (t2-t1)*1000.0))
+    print('norm = %g'%(norm(b - A*y)))
+    print('info flag = %d'%(flag))
 
-    
+

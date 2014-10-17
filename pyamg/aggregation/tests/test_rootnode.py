@@ -206,9 +206,9 @@ class TestSolverPerformance(TestCase):
 
             avg_convergence_ratio =\
                 (residuals[-1] / residuals[0]) ** (1.0 / len(residuals))
-            # print "Real Test:   %1.3e,  %1.3e,  %d,  %1.3e" % \
-            #   (avg_convergence_ratio, c_factor, len(ml.levels),
-            #    ml.operator_complexity())
+            # print("Real Test:   %1.3e,  %1.3e,  %d,  %1.3e" % \
+            #   (avg_convergence_ratio, c_factor, len(ml.levels),\
+            #    ml.operator_complexity()))
             assert(avg_convergence_ratio < c_factor)
 
     def test_DAD(self):
@@ -235,8 +235,8 @@ class TestSolverPerformance(TestCase):
         avg_convergence_ratio =\
             (residuals[-1] / residuals[0]) ** (1.0 / len(residuals))
 
-        # print "Diagonal Scaling Test:   %1.3e,  %1.3e" %
-        # (avg_convergence_ratio, 0.4)
+        # print("Diagonal Scaling Test:   %1.3e,  %1.3e" %
+        # (avg_convergence_ratio, 0.4))
         assert(avg_convergence_ratio < 0.4)
 
     def test_improve_candidates(self):
@@ -271,9 +271,9 @@ class TestSolverPerformance(TestCase):
                     last_rho = rho
                 else:
                     # each successive improve_candidates option should be an
-                    # improvement on the previous print "\nimprove_candidates
-                    # Test: %1.3e, %1.3e,
-                    # %d\n"%(rho,rho_scale*last_rho,A.shape[0])
+                    # improvement on the previous
+                    # print("\nimprove_candidates Test: %1.3e, %1.3e,\
+                    # %d\n"%(rho,rho_scale*last_rho,A.shape[0]))
                     assert(rho < rho_scale * last_rho)
                     last_rho = rho
 
@@ -332,7 +332,7 @@ class TestSolverPerformance(TestCase):
         residuals = array(residuals)
         avg_convergence_ratio =\
             (residuals[-1] / residuals[0]) ** (1.0 / len(residuals))
-        # print "Test 1  %1.3e,  %1.3e" % (avg_convergence_ratio, 0.7)
+        # print("Test 1  %1.3e,  %1.3e" % (avg_convergence_ratio, 0.7))
         assert(avg_convergence_ratio < 0.7)
         # accelerated solve
         residuals = []
@@ -341,7 +341,7 @@ class TestSolverPerformance(TestCase):
         residuals = array(residuals)
         avg_convergence_ratio =\
             (residuals[-1] / residuals[0]) ** (1.0 / len(residuals))
-        # print "Test 2  %1.3e,  %1.3e" % (avg_convergence_ratio, 0.45)
+        # print("Test 2  %1.3e,  %1.3e" % (avg_convergence_ratio, 0.45))
         assert(avg_convergence_ratio < 0.45)
 
         # test that nonsymmetric parameters give the same result as symmetric
@@ -462,9 +462,9 @@ class TestComplexSolverPerformance(TestCase):
             avg_convergence_ratio =\
                 (residuals[-1] / residuals[0]) ** (1.0 / len(residuals))
 
-            # print "Complex Test:   %1.3e,  %1.3e,  %d,  %1.3e" % \
-            #    (avg_convergence_ratio, c_factor, len(ml.levels),
-            #     ml.operator_complexity())
+            # print("Complex Test:   %1.3e,  %1.3e,  %d,  %1.3e" % \
+            #    (avg_convergence_ratio, c_factor, len(ml.levels),\
+            #     ml.operator_complexity()))
             assert(avg_convergence_ratio < c_factor)
 
     def test_nonhermitian(self):
@@ -492,7 +492,7 @@ class TestComplexSolverPerformance(TestCase):
         residuals = array(residuals)
         avg_convergence_ratio =\
             (residuals[-1] / residuals[0]) ** (1.0 / len(residuals))
-        # print "Test 3  %1.3e,  %1.3e" % (avg_convergence_ratio, 0.92)
+        # print("Test 3  %1.3e,  %1.3e" % (avg_convergence_ratio, 0.92))
         assert(avg_convergence_ratio < 0.92)
         # accelerated solve
         residuals = []
@@ -501,7 +501,7 @@ class TestComplexSolverPerformance(TestCase):
         residuals = array(residuals)
         avg_convergence_ratio =\
             (residuals[-1] / residuals[0]) ** (1.0 / len(residuals))
-        # print "Test 4  %1.3e,  %1.3e" % (avg_convergence_ratio, 0.8)
+        # print("Test 4  %1.3e,  %1.3e" % (avg_convergence_ratio, 0.8))
         assert(avg_convergence_ratio < 0.8)
 
         # test that nonsymmetric parameters give the same result as symmetric

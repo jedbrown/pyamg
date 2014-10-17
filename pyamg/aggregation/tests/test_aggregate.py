@@ -33,14 +33,14 @@ class TestAggregate(TestCase):
     def test_standard_aggregation(self):
         for A in self.cases:
             S = symmetric_strength_of_connection(A)
-            
+
             (expected,expected_Cpts) = reference_standard_aggregation(S)
             (result,Cpts)   = standard_aggregation(S)
 
             assert_equal( (result - expected).nnz, 0 )
             assert_equal( Cpts.shape[0], expected_Cpts.shape[0])
             assert_equal( setdiff1d(Cpts, expected_Cpts).shape[0], 0)
-    
+
         # S is diagonal - no dofs aggregated
         S = spdiags([[1,1,1,1]],[0],4,4,format='csr')
         (result,Cpts)   = standard_aggregation(S)
@@ -51,21 +51,21 @@ class TestAggregate(TestCase):
     def test_naive_aggregation(self):
         for A in self.cases:
             S = symmetric_strength_of_connection(A)
-            
+
             (expected,expected_Cpts) = reference_naive_aggregation(S)
             (result,Cpts)   = naive_aggregation(S)
 
             assert_equal( (result - expected).nnz, 0 )
             assert_equal( Cpts.shape[0], expected_Cpts.shape[0])
             assert_equal( setdiff1d(Cpts, expected_Cpts).shape[0], 0)
-    
+
         # S is diagonal - no dofs aggregated
         S = spdiags([[1,1,1,1]],[0],4,4,format='csr')
         (result, Cpts)   = naive_aggregation(S)
         expected = numpy.eye(4)
         assert_equal(result.todense(),expected)
         assert_equal(Cpts.shape[0], 4)
-        
+
 
 class TestComplexAggregate(TestCase):
     def setUp(self):
@@ -79,18 +79,18 @@ class TestComplexAggregate(TestCase):
     def test_standard_aggregation(self):
         for A in self.cases:
             S = symmetric_strength_of_connection(A)
-            
+
             (expected,expected_Cpts) = reference_standard_aggregation(S)
             (result,Cpts)   = standard_aggregation(S)
 
             assert_equal( (result - expected).nnz, 0 )
             assert_equal( Cpts.shape[0], expected_Cpts.shape[0])
             assert_equal( setdiff1d(Cpts, expected_Cpts).shape[0], 0)
-    
+
     def test_naive_aggregation(self):
         for A in self.cases:
             S = symmetric_strength_of_connection(A)
-            
+
             (expected,expected_Cpts) = reference_naive_aggregation(S)
             (result,Cpts)   = naive_aggregation(S)
 
@@ -171,7 +171,7 @@ def reference_naive_aggregation(C):
 
     # Only one aggregation pass
     for i,row in enumerate(S):
-        
+
         # if i isn't already aggregated, grab all his neighbors
         if aggregates[i] == -1:
             unaggregated_neighbors = numpy.setdiff1d(row, R)
@@ -183,7 +183,7 @@ def reference_naive_aggregation(C):
             Cpts.append(i)
         else:
             pass
-    
+
     assert(numpy.unique(R).shape[0] == n)
 
     Pj = aggregates

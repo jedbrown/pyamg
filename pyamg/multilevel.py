@@ -135,7 +135,7 @@ class multilevel_solver(object):
         >>> levels[1].A = R * A * P                      # coarse-level matrix
         >>> # create multilevel_solver
         >>> ml = multilevel_solver(levels, coarse_solver='splu')
-        >>> print ml
+        >>> print(ml)
         multilevel_solver
         Number of Levels:     2
         Operator Complexity:  1.891

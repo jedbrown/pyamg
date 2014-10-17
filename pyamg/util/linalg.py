@@ -15,12 +15,12 @@ __all__ = ['approximate_spectral_radius', 'infinity_norm', 'norm', 'residual_nor
 def norm(x, pnorm='2'):
     """
     2-norm of a vector
-    
+
     Parameters
     ----------
     x : array_like
         Vector of complex or real values
-    
+
     pnorm : string
         '2' calculates the 2-norm
         'inf' calculates the infinity-norm
@@ -43,9 +43,9 @@ def norm(x, pnorm='2'):
 
     #TODO check dimensions of x
     #TODO speedup complex case
-    
+
     x = numpy.ravel(x)
-    
+
     if pnorm == '2':
         return numpy.sqrt( numpy.inner(x.conj(),x).real )
     elif pnorm == 'inf':
@@ -55,18 +55,18 @@ def norm(x, pnorm='2'):
 
 def infinity_norm(A):
     """
-    Infinity norm of a matrix (maximum absolute row sum).  
+    Infinity norm of a matrix (maximum absolute row sum).
 
     Parameters
     ----------
     A : csr_matrix, csc_matrix, sparse, or numpy matrix
         Sparse or dense matrix
-    
+
     Returns
     -------
     n : float
         Infinity norm of the matrix
-    
+
     Notes
     -----
     - This serves as an upper bound on spectral radius.
@@ -86,7 +86,7 @@ def infinity_norm(A):
     >>> e = numpy.ones((n,1)).ravel()
     >>> data = [ -1*e, 2*e, -1*e ]
     >>> A = spdiags(data,[-1,0,1],n,n)
-    >>> print infinity_norm(A)
+    >>> print(infinity_norm(A))
     4.0
     """
 
@@ -158,17 +158,17 @@ def axpy(x,y,a=1.0):
 #        method = eigen_symmetric
 #    else:
 #        method = eigen
-#    
+#
 #    return norm( method(A, k=1, tol=0.1, which='LM', maxiter=maxiter, return_eigenvectors=False) )
 
 def _approximate_eigenvalues(A, tol, maxiter, symmetric=None, initial_guess=None):
     """Used by approximate_spectral_radius and condest
-       
+
        Returns [W, E, H, V, breakdown_flag], where W and E are the eigenvectors
        and eigenvalues of the Hessenberg matrix H, respectively, and V is the
        Krylov space.  breakdown_flag denotes whether Lanczos/Arnoldi suffered
        breakdown.  E is therefore the approximate eigenvalues of A.
-       
+
        To obtain approximate eigenvectors of A, compute V*W.
        """
 
@@ -190,18 +190,18 @@ def _approximate_eigenvalues(A, tol, maxiter, symmetric=None, initial_guess=None
         raise ValueError('expected square matrix')
 
     maxiter = min(A.shape[0],maxiter)
-    
+
     if initial_guess == None:
         v0  = scipy.rand(A.shape[1],1)
         if A.dtype == complex:
             v0 = v0 + 1.0j * scipy.rand(A.shape[1],1)
     else:
         v0 = initial_guess
-    
+
     v0 /= norm(v0)
 
     ##
-    # Important to type H based on v0, so that a real nonsymmetric matrix, can 
+    # Important to type H based on v0, so that a real nonsymmetric matrix, can
     # have an imaginary initial guess for its Arnoldi Krylov space
     H  = numpy.zeros((maxiter+1,maxiter), dtype=numpy.find_common_type([v0.dtype, A.dtype],[]) )
 
@@ -209,7 +209,7 @@ def _approximate_eigenvalues(A, tol, maxiter, symmetric=None, initial_guess=None
 
     for j in range(maxiter):
         w = A * V[-1]
-   
+
         if symmetric:
             if j >= 1:
                 H[j-1,j] = beta
@@ -217,15 +217,15 @@ def _approximate_eigenvalues(A, tol, maxiter, symmetric=None, initial_guess=None
 
             alpha = numpy.dot(numpy.conjugate(numpy.ravel(w)), numpy.ravel(V[-1]))
             H[j,j] = alpha
-            w -= alpha * V[-1]  #axpy(V[-1],w,-alpha) 
-            
+            w -= alpha * V[-1]  #axpy(V[-1],w,-alpha)
+
             beta = norm(w)
             H[j+1,j] = beta
 
-            if (H[j+1,j] < breakdown): 
+            if (H[j+1,j] < breakdown):
                 breakdown_flag = True
                 break
-            
+
             w /= beta
 
             V.append(w)
@@ -238,38 +238,38 @@ def _approximate_eigenvalues(A, tol, maxiter, symmetric=None, initial_guess=None
                 w = w - H[i,j]*v
 
             H[j+1,j] = norm(w)
-            
-            if (H[j+1,j] < breakdown): 
+
+            if (H[j+1,j] < breakdown):
                 breakdown_flag = True
                 if H[j+1,j] != 0.0:
-                    w = w/H[j+1,j] 
+                    w = w/H[j+1,j]
                 V.append(w)
                 break
-            
-            w = w/H[j+1,j] 
+
+            w = w/H[j+1,j]
             V.append(w)
-   
+
             # if upper 2x2 block of Hessenberg matrix H is almost symmetric,
             # and the user has not explicitly specified symmetric=False,
             # then switch to symmetric Lanczos algorithm
             #if symmetric is not False and j == 1:
             #    if abs(H[1,0] - H[0,1]) < 1e-12:
-            #        #print "using symmetric mode"
+            #        # print("using symmetric mode")
             #        symmetric = True
             #        V = V[1:]
             #        H[1,0] = H[0,1]
             #        beta = H[2,1]
-    
-    #print "Approximated spectral radius in %d iterations" % (j + 1)
-    
+
+    #print("Approximated spectral radius in %d iterations" % (j + 1))
+
     from scipy.linalg import eig
-    
+
     Eigs,Vects = eig(H[:j+1,:j+1], left=False, right=True)
 
     return (Vects,Eigs,H,V,breakdown_flag)
 
 
-def approximate_spectral_radius(A, tol=0.01, maxiter=15, restart=5, symmetric=None, 
+def approximate_spectral_radius(A, tol=0.01, maxiter=15, restart=5, symmetric=None,
         initial_guess=None, return_vector=False):
     """
     Approximate the spectral radius of a matrix
@@ -299,7 +299,7 @@ def approximate_spectral_radius(A, tol=0.01, maxiter=15, restart=5, symmetric=No
         If None, then use a random initial guess.
     return_vector : {boolean}
         True - return an approximate dominant eigenvector, in addition to the
-               spectral radius.   
+               spectral radius.
         False - Do not return the approximate dominant eigenvector
 
     Returns
@@ -329,14 +329,14 @@ def approximate_spectral_radius(A, tol=0.01, maxiter=15, restart=5, symmetric=No
     >>> import numpy
     >>> from scipy.linalg import eigvals, norm
     >>> A = numpy.array([[1.,0.],[0.,1.]])
-    >>> print approximate_spectral_radius(A,maxiter=3)
+    >>> print(approximate_spectral_radius(A,maxiter=3))
     1.0
-    >>> print max([norm(x) for x in eigvals(A)])
+    >>> print(max([norm(x) for x in eigvals(A)]))
     1.0
     """
-    
+
     if not hasattr(A, 'rho') or return_vector:
-        
+
         ## somehow more restart causes a nonsymmetric case to fail...look at this
         ## what about A.dtype=int?  convert somehow?
 
@@ -367,16 +367,16 @@ def approximate_spectral_radius(A, tol=0.01, maxiter=15, restart=5, symmetric=No
             v0 = numpy.array(v0, dtype=A.dtype)
 
         for j in range(restart+1):
-            [evect, ev, H, V, breakdown_flag] = _approximate_eigenvalues(A, 
-                    tol, maxiter, symmetric, initial_guess=v0) 
+            [evect, ev, H, V, breakdown_flag] = _approximate_eigenvalues(A,
+                    tol, maxiter, symmetric, initial_guess=v0)
             # Calculate error in dominant eigenvector
             nvecs = ev.shape[0]
             max_index = numpy.abs(ev).argmax()
             error = H[nvecs,nvecs-1]*evect[-1,max_index]
-            # error is a fast way of calculating the following line 
+            # error is a fast way of calculating the following line
             #error2 = ( A - ev[max_index]*scipy.mat(scipy.eye(A.shape[0],A.shape[1])) )*\
-            #         ( scipy.mat(scipy.hstack(V[:-1]))*evect[:,max_index].reshape(-1,1) ) 
-            #print str(error) + "    " + str(scipy.linalg.norm(e2))
+            #         ( scipy.mat(scipy.hstack(V[:-1]))*evect[:,max_index].reshape(-1,1) )
+            #print(str(error) + "    " + str(scipy.linalg.norm(e2)))
             if (numpy.abs(error)/numpy.abs(ev[max_index]) < tol) or breakdown_flag:
                 # halt if below relative tolerance
                 v0 = numpy.dot(numpy.hstack(V[:-1]), evect[:,max_index].reshape(-1,1))
@@ -388,7 +388,7 @@ def approximate_spectral_radius(A, tol=0.01, maxiter=15, restart=5, symmetric=No
         rho = numpy.abs(ev[max_index])
         if sparse.isspmatrix(A):
             A.rho = rho
-        
+
         if return_vector:
             return (rho, v0)
         else:
@@ -420,9 +420,9 @@ def condest(A, tol=0.1, maxiter=25, symmetric=False):
 
     Notes
     -----
-    The condition number measures how large of a change in the 
+    The condition number measures how large of a change in the
     the problems solution is caused by a change in problem's input.
-    Large condition numbers indicate that small perturbations 
+    Large condition numbers indicate that small perturbations
     and numerical errors are magnified greatly when solving the system.
 
     Examples
@@ -430,14 +430,14 @@ def condest(A, tol=0.1, maxiter=25, symmetric=False):
     >>> import numpy
     >>> from pyamg.util.linalg import condest
     >>> c = condest(numpy.array([[1.,0.],[0.,2.]]))
-    >>> print c
+    >>> print(c)
     2.0
-    
+
     """
 
     [evect, ev, H, V, breakdown_flag] = _approximate_eigenvalues(A, tol, maxiter, symmetric)
 
-    return numpy.max([norm(x) for x in ev])/min([norm(x) for x in ev])      
+    return numpy.max([norm(x) for x in ev])/min([norm(x) for x in ev])
 
 def cond(A):
     """Returns condition number of A
@@ -446,18 +446,18 @@ def cond(A):
     ----------
     A   : {dense or sparse matrix}
         e.g. array, matrix, csr_matrix, ...
-    
+
     Returns
     -------
-    2-norm condition number through use of the SVD 
-    Use for small to moderate sized dense matrices.  
+    2-norm condition number through use of the SVD
+    Use for small to moderate sized dense matrices.
     For large sparse matrices, use condest.
 
     Notes
     -----
-    The condition number measures how large of a change in 
+    The condition number measures how large of a change in
     the problems solution is caused by a change in problem's input.
-    Large condition numbers indicate that small perturbations 
+    Large condition numbers indicate that small perturbations
     and numerical errors are magnified greatly when solving the system.
 
     Examples
@@ -465,10 +465,10 @@ def cond(A):
     >>> import numpy
     >>> from pyamg.util.linalg import condest
     >>> c = condest(numpy.array([[1.0,0.],[0.,2.0]]))
-    >>> print c
+    >>> print(c)
     2.0
 
-    """  
+    """
 
     if A.shape[0] != A.shape[1]:
         raise ValueError,'expected square matrix'
@@ -517,7 +517,7 @@ def ishermitian(A, fast_check=True, tol=1e-6, verbose=False):
     >>> from pyamg.util.linalg import ishermitian
     >>> ishermitian(numpy.array([[1,2],[1,1]]))
     False
-    
+
     >>> from pyamg.gallery import poisson
     >>> ishermitian(poisson((10,10)))
     True
@@ -546,20 +546,20 @@ def ishermitian(A, fast_check=True, tol=1e-6, verbose=False):
         if numpy.max(diff.shape) == 0:
             diff = 0
         else:
-            diff = numpy.max(numpy.abs(diff)) 
-        
+            diff = numpy.max(numpy.abs(diff))
+
     if diff < tol:
         diff = 0
         return True
     else:
         if verbose:
-            print dff
+            print(dff)
         return False
-    
+
     return diff
 
 def pinv_array(a, cond=None):
-    """Calculate the Moore-Penrose pseudo inverse of each block of 
+    """Calculate the Moore-Penrose pseudo inverse of each block of
         the three dimensional array a.
 
     Parameters
@@ -574,7 +574,7 @@ def pinv_array(a, cond=None):
     -------
     Nothing, a is modified in place so that a[k] holds the pseudoinverse
     of that block.
-    
+
     Notes
     -----
     By using lapack wrappers, this can be much faster for large n, than
@@ -590,7 +590,7 @@ def pinv_array(a, cond=None):
     >>> pinv_array(a)
 
     """
-    
+
     n = a.shape[0]
     m = a.shape[1]
 
@@ -602,17 +602,17 @@ def pinv_array(a, cond=None):
         a[:] = 1.0/a
         a[zero_entries] = 0.0
         del zero_entries
-    
-    else: 
+
+    else:
         ##
         # The block size is greater than 1
-        
+
         ##
         # Create necessary arrays and function pointers for calculating pinv
         gelss, = get_lapack_funcs(('gelss',), (numpy.ones((1,), dtype=a.dtype)) )
         RHS = numpy.eye(m, dtype=a.dtype)
         lwork = calc_lwork.gelss(gelss.prefix, m, m, m)[1]
-        
+
         ##
         # Choose tolerance for which singular values are zero in *gelss below
         if cond is None:
@@ -623,7 +623,7 @@ def pinv_array(a, cond=None):
             _array_precision = {'f': 0, 'd': 1, 'g': 2, 'F': 0, 'D': 1, 'G':2}
             cond = {0: feps*1e3, 1: eps*1e6, 2: geps*1e6}[_array_precision[t]]
 
-        ## 
+        ##
         # Invert each block of a
         for kk in xrange(n):
             gelssoutput = gelss(a[kk], RHS, cond=cond, lwork=lwork, overwrite_a=True, overwrite_b=False)

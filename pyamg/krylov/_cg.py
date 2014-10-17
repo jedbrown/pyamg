@@ -1,7 +1,6 @@
 import numpy
-from numpy import inner, conjugate, asarray, mod, ravel, sqrt
+from numpy import inner, mod, sqrt
 from scipy.sparse.linalg.isolve.utils import make_system
-from scipy.sparse.sputils import upcast
 from pyamg.util.linalg import norm
 from warnings import warn
 
@@ -73,7 +72,7 @@ def cg(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None,
     >>> A = poisson((10,10))
     >>> b = numpy.ones((A.shape[0],))
     >>> (x,flag) = cg(A,b, maxiter=2, tol=1e-8)
-    >>> print norm(b - A*x)
+    >>> print(norm(b - A*x))
     10.9370700187
 
     References
@@ -139,7 +138,7 @@ def cg(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None,
         Ap = A*p
 
         rz_old = rz
-                                                  # Step # in Saad's pseudocode
+        # Step # in Saad's pseudocode
         pAp = inner(Ap.conjugate(), p)             # check curvature of A
         if pAp < 0.0:
             warn("\nIndefinite matrix detected in CG, aborting\n")
@@ -186,35 +185,35 @@ def cg(A, b, x0=None, tol=1e-5, maxiter=None, xtype=None, M=None,
         if iter == maxiter:
             return (postprocess(x), iter)
 
-#if __name__ == '__main__':
-#    # from numpy import diag
-#    # A = random((4,4))
-#    # A = A*A.transpose() + diag([10,10,10,10])
-#    # b = random((4,1))
-#    # x0 = random((4,1))
+# if __name__ == '__main__':
+#     # from numpy import diag
+#     # A = random((4,4))
+#     # A = A*A.transpose() + diag([10,10,10,10])
+#     # b = random((4,1))
+#     # x0 = random((4,1))
 #
-#    from pyamg.gallery import stencil_grid
-#    from numpy.random import random
-#    A = stencil_grid([[0,-1,0],[-1,4,-1],[0,-1,0]],(100,100),
-#                     dtype=float,format='csr')
-#    b = random((A.shape[0],))
-#    x0 = random((A.shape[0],))
+#     from pyamg.gallery import stencil_grid
+#     from numpy.random import random
+#     A = stencil_grid([[0,-1,0],[-1,4,-1],[0,-1,0]],(100,100),
+#                      dtype=float,format='csr')
+#     b = random((A.shape[0],))
+#     x0 = random((A.shape[0],))
 #
-#    import time
-#    from scipy.sparse.linalg.isolve import cg as icg
+#     import time
+#     from scipy.sparse.linalg.isolve import cg as icg
 #
-#    print '\n\nTesting CG with %d x %d 2D Laplace Matrix' % \
-#           (A.shape[0],A.shape[0])
-#    t1=time.time()
-#    (x,flag) = cg(A,b,x0,tol=1e-8,maxiter=100)
-#    t2=time.time()
-#    print '%s took %0.3f ms' % ('cg', (t2-t1)*1000.0)
-#    print 'norm = %g'%(norm(b - A*x))
-#    print 'info flag = %d'%(flag)
+#     print('\n\nTesting CG with %d x %d 2D Laplace Matrix' % \
+#            (A.shape[0],A.shape[0]))
+#     t1=time.time()
+#     (x,flag) = cg(A,b,x0,tol=1e-8,maxiter=100)
+#     t2=time.time()
+#     print('%s took %0.3f ms' % ('cg', (t2-t1)*1000.0))
+#     print('norm = %g'%(norm(b - A*x)))
+#     print('info flag = %d'%(flag))
 #
-#    t1=time.time()
-#    (y,flag) = icg(A,b,x0,tol=1e-8,maxiter=100)
-#    t2=time.time()
-#    print '\n%s took %0.3f ms' % ('linalg cg', (t2-t1)*1000.0)
-#    print 'norm = %g'%(norm(b - A*y))
-#    print 'info flag = %d'%(flag)
+#     t1=time.time()
+#     (y,flag) = icg(A,b,x0,tol=1e-8,maxiter=100)
+#     t2=time.time()
+#     print('\n%s took %0.3f ms' % ('linalg cg', (t2-t1)*1000.0))
+#     print('norm = %g'%(norm(b - A*y)))
+#     print('info flag = %d'%(flag))

@@ -36,7 +36,7 @@ def direct_interpolation(A, C, splitting):
     >>> A = poisson((5,),format='csr')
     >>> splitting = numpy.array([1,0,1,0,1], dtype='intc')
     >>> P = direct_interpolation(A, A, splitting)
-    >>> print P.todense()
+    >>> print(P.todense())
     [[ 1.   0.   0. ]
      [ 0.5  0.5  0. ]
      [ 0.   1.   0. ]

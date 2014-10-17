@@ -27,7 +27,7 @@ def change_smoothers(ml, presmoother, postsmoother):
     the option of having different smoothers at different levels
 
     For each level of the multilevel_solver 'ml' (except the coarsest level),
-    initialize the .presmoother() and .postsmoother() methods used in the 
+    initialize the .presmoother() and .postsmoother() methods used in the
     multigrid cycle.
 
     Parameters
@@ -35,22 +35,22 @@ def change_smoothers(ml, presmoother, postsmoother):
     ml : {pyamg multilevel hierarchy}
         Data structure that stores the multigrid hierarchy.
     presmoother : {None, string, tuple, list}
-        presmoother can be (1) the name of a supported smoother, 
-        e.g. "gauss_seidel", (2) a tuple of the form ('method','opts') where 
+        presmoother can be (1) the name of a supported smoother,
+        e.g. "gauss_seidel", (2) a tuple of the form ('method','opts') where
         'method' is the name of a supported smoother and 'opts' a dict of
         keyword arguments to the smoother, or (3) a list of instances of options 1 or 2.
-        See the Examples section for illustrations of the format. 
+        See the Examples section for illustrations of the format.
 
         If presmoother is a list, presmoother[i] determines the smoothing
-        strategy for level i.  Else, presmoother defines the same strategy 
+        strategy for level i.  Else, presmoother defines the same strategy
         for all levels.
-        
-        If len(presmoother) < len(ml.levels), then 
+
+        If len(presmoother) < len(ml.levels), then
         presmoother[-1] is used for all remaining levels
-        
+
         If len(presmoother) > len(ml.levels), then
         the remaining smoothing strategies are ignored
-    
+
     postsmoother : {string, tuple, list}
         Defines postsmoother in identical fashion to presmoother
 
@@ -63,7 +63,7 @@ def change_smoothers(ml, presmoother, postsmoother):
     Notes
     -----
     - Parameter 'omega' of the Jacobi, Richardson, and jacobi_ne
-      methods is scaled by the spectral radius of the matrix on 
+      methods is scaled by the spectral radius of the matrix on
       each level.  Therefore 'omega' should be in the interval (0,2).
     - Parameter 'withrho' (default: True) controls whether the omega is
       rescaled by the spectral radius in jacobi, block_jacobi, and jacobi_ne
@@ -114,7 +114,7 @@ def change_smoothers(ml, presmoother, postsmoother):
     >>> residuals=[]
     >>> x = ml.solve(b, tol=1e-8, residuals=residuals)
     >>> #
-    >>> ## Set level 0 to use gauss_seidel's defaults, and all  
+    >>> ## Set level 0 to use gauss_seidel's defaults, and all
     >>> ## subsequent levels to use 5 iterations of cgnr
     >>> smoothers = ['gauss_seidel', ('cgnr', {'maxiter' : 5})]
     >>> change_smoothers(ml, presmoother=smoothers, postsmoother=smoothers)
@@ -144,7 +144,7 @@ def change_smoothers(ml, presmoother, postsmoother):
         except NameError, ne:
             raise NameError("invalid presmoother method: ", fn)
         ml.levels[i].presmoother = setup_presmoother(ml.levels[i], **kwargs)
-    
+
     # Fill in remaining levels
     for j in range(i+1, len(ml.levels[:-1])):
         ml.levels[j].presmoother = setup_presmoother(ml.levels[j], **kwargs)
@@ -161,15 +161,15 @@ def change_smoothers(ml, presmoother, postsmoother):
         except NameError, ne:
             raise NameError("invalid postsmoother method: ", fn)
         ml.levels[i].postsmoother = setup_postsmoother(ml.levels[i], **kwargs)
-    
+
     # Fill in remaining levels
     for j in range(i+1, len(ml.levels[:-1])):
         ml.levels[j].postsmoother = setup_postsmoother(ml.levels[j], **kwargs)
 
 def rho_D_inv_A(A):
     """
-    Return the (approx.) spectral radius of D^-1 * A 
-    
+    Return the (approx.) spectral radius of D^-1 * A
+
     Parameters
     ----------
     A : {sparse-matrix}
@@ -185,22 +185,22 @@ def rho_D_inv_A(A):
     >>> from scipy.sparse import csr_matrix
     >>> import numpy
     >>> A = csr_matrix(numpy.array([[1.0,0,0],[0,2.0,0],[0,0,3.0]]))
-    >>> print rho_D_inv_A(A)
+    >>> print(rho_D_inv_A(A))
     1.0
     """
-    
+
     if not hasattr(A, 'rho_D_inv'):
         D_inv = get_diagonal(A, inv=True)
         D_inv_A = scale_rows(A, D_inv, copy=True)
         A.rho_D_inv = approximate_spectral_radius(D_inv_A)
-    
+
     return A.rho_D_inv
 
 
 def rho_block_D_inv_A(A, Dinv):
     """
-    Return the (approx.) spectral radius of block D^-1 * A 
-    
+    Return the (approx.) spectral radius of block D^-1 * A
+
     Parameters
     ----------
     A : {sparse-matrix}
@@ -221,26 +221,26 @@ def rho_block_D_inv_A(A, Dinv):
     >>> import numpy
     >>> A = poisson((10,10), format='csr')
     >>> Dinv = get_block_diag(A, blocksize=4, inv_flag=True)
-    
+
     """
 
     if not hasattr(A, 'rho_block_D_inv'):
         from scipy.sparse.linalg import LinearOperator
-        
+
         blocksize = Dinv.shape[1]
         if Dinv.shape[1] != Dinv.shape[2]:
             raise ValueError('Dinv has incorrect dimensions')
         elif Dinv.shape[0] != A.shape[0]/blocksize:
             raise ValueError('Dinv and A have incompatible dimensions')
-        
+
         Dinv = scipy.sparse.bsr_matrix( (Dinv, \
                 scipy.arange(Dinv.shape[0]), scipy.arange(Dinv.shape[0]+1)), shape=A.shape)
-        
+
         # Don't explicitly form Dinv*A
         def matvec(x):
             return Dinv*(A*x)
         D_inv_A = LinearOperator(A.shape, matvec, dtype=A.dtype)
-        
+
         A.rho_block_D_inv = approximate_spectral_radius(D_inv_A)
 
     return A.rho_block_D_inv
@@ -252,7 +252,7 @@ def matrix_asformat(lvl, name, format, blocksize=None):
     and blocksize=(4,4), and if lvl.Absr44 exists with the correct blocksize,
     then lvl.Absr is returned.  If the matrix doesn't already exist, lvl.name
     is converted to the desired format, and made a member of lvl.
-    
+
     Only create such persistent copies of a matrix for routines such as
     presmoothing and postsmoothing, where the matrix conversion is done every
     cycle.
@@ -260,7 +260,7 @@ def matrix_asformat(lvl, name, format, blocksize=None):
     Calling this function can _dramatically_ increase your memory costs.
     Be careful with it's usage.
     '''
-    
+
     desired_matrix = 'lvl.' + name + format
     if format == 'bsr':
         desired_matrix +=  str(blocksize[0])+str(blocksize[1])
@@ -281,7 +281,7 @@ def matrix_asformat(lvl, name, format, blocksize=None):
     elif format == 'bsr':
         # convert
         exec desired_matrix +' = '+ base_matrix+'.to'+format+'(blocksize='+str(blocksize)+')'
-    else: 
+    else:
         # convert
         exec desired_matrix + ' = lvl.' + name + '.to' + format + '()'
 
@@ -299,13 +299,13 @@ def matrix_asformat(lvl, name, format, blocksize=None):
 #If subdomain and subdomain_ptr are passed in, check to see that they are the
 #same as any preexisting subdomain and subdomain_ptr?
 
-def schwarz_parameters(A, subdomain=None, subdomain_ptr=None, 
+def schwarz_parameters(A, subdomain=None, subdomain_ptr=None,
                        inv_subblock=None, inv_subblock_ptr=None):
     '''
     Helper function for setting up Schwarz relaxation.  This function avoids
     recomputing the subdomains and block inverses manytimes, e.g., it avoids
     a costly double computation when setting up pre and post smoothing with Schwarz.
-    
+
     Parameters
     ----------
     A {csr_matrix}
@@ -317,7 +317,7 @@ def schwarz_parameters(A, subdomain=None, subdomain_ptr=None,
     A.schwarz_parameters[2] is inv_subblock
     A.schwarz_parameters[3] is inv_subblock_ptr
     '''
-    
+
     # Check if A has a pre-existing set of Schwarz parameters
     if hasattr(A, 'schwarz_parameters'):
         if subdomain != None and subdomain_ptr != None:
@@ -327,7 +327,7 @@ def schwarz_parameters(A, subdomain=None, subdomain_ptr=None,
                 return A.schwarz_parameters
         else:
             return A.schwarz_parameters
-    
+
     # Default is to use the overlapping regions defined by A's sparsity pattern
     if subdomain is None or subdomain_ptr is None:
         subdomain_ptr = A.indptr.copy()
@@ -339,12 +339,12 @@ def schwarz_parameters(A, subdomain=None, subdomain_ptr=None,
         inv_subblock_ptr = numpy.zeros(subdomain_ptr.shape, dtype=A.indices.dtype)
         blocksize = (subdomain_ptr[1:] - subdomain_ptr[:-1])
         inv_subblock_ptr[1:] = numpy.cumsum(blocksize*blocksize)
-        
+
         ##
         # Extract each block column from A
         inv_subblock = numpy.zeros((inv_subblock_ptr[-1],), dtype=A.dtype)
-        amg_core.extract_subblocks(A.indptr, A.indices, A.data, inv_subblock, 
-                          inv_subblock_ptr, subdomain, subdomain_ptr, 
+        amg_core.extract_subblocks(A.indptr, A.indices, A.data, inv_subblock,
+                          inv_subblock_ptr, subdomain, subdomain_ptr,
                           int(subdomain_ptr.shape[0]-1), A.shape[0])
         ##
         # Choose tolerance for which singular values are zero in *gelss below
@@ -361,7 +361,7 @@ def schwarz_parameters(A, subdomain=None, subdomain_ptr=None,
         for i in xrange(subdomain_ptr.shape[0]-1):
             m = blocksize[i]
             rhs = scipy.eye(m,m, dtype=A.dtype)
-            gelssoutput = my_pinv(inv_subblock[inv_subblock_ptr[i]:inv_subblock_ptr[i+1]].reshape(m,m), 
+            gelssoutput = my_pinv(inv_subblock[inv_subblock_ptr[i]:inv_subblock_ptr[i+1]].reshape(m,m),
                             rhs, cond=cond, overwrite_a=True, overwrite_b=True)
             inv_subblock[inv_subblock_ptr[i]:inv_subblock_ptr[i+1]] = numpy.ravel(gelssoutput[1])
 
@@ -397,7 +397,7 @@ def setup_gauss_seidel(lvl, iterations=1, sweep='forward'):
     def smoother(A,x,b):
         relaxation.gauss_seidel(A, x, b, iterations=iterations, sweep=sweep)
     return smoother
-        
+
 def setup_jacobi(lvl, iterations=1, omega=1.0, withrho=True):
     if withrho:
         omega = omega/rho_D_inv_A(lvl.A)
@@ -420,7 +420,7 @@ def setup_schwarz(lvl, iterations=1, subdomain=None, subdomain_ptr=None, \
 
 
 def setup_strength_based_schwarz(lvl, iterations=1, sweep='symmetric'):
-    # Use the overlapping regions defined by the strength of connection matrix C 
+    # Use the overlapping regions defined by the strength of connection matrix C
     # for the overlapping Schwarz method
     if not hasattr(lvl,'C'):
         C = lvl.A.tocsr()
@@ -443,7 +443,7 @@ def setup_block_jacobi(lvl, iterations=1, omega=1.0, Dinv=None, blocksize=None, 
             blocksize = lvl.A.blocksize[0]
     elif blocksize == None:
         blocksize = Dinv.shape[1]
-    
+
     if blocksize == 1:
         # Block Jacobi is equivalent to normal Jacobi
         return setup_jacobi(lvl, iterations=iterations, omega=omega, withrho=withrho)
@@ -473,7 +473,7 @@ def setup_block_gauss_seidel(lvl, iterations=1, sweep='forward', Dinv=None, bloc
         # Block GS is equivalent to normal GS
         return setup_gauss_seidel(lvl, iterations=iterations, sweep=sweep)
     else:
-        # Use Block GS       
+        # Use Block GS
         if Dinv == None:
             Dinv = get_block_diag(lvl.A, blocksize=blocksize, inv_flag=True)
         def smoother(A,x,b):
@@ -526,7 +526,7 @@ def setup_gmres(lvl, tol=1e-12, maxiter=1, restrt=None, M=None, callback=None, r
     def smoother(A,x,b):
         x[:] = (gmres(A, b, x0=x, tol=tol, maxiter=maxiter, restrt=restrt, M=M, callback=callback, residuals=residuals)[0]).reshape(x.shape)
     return smoother
-            
+
 def setup_cg(lvl, tol=1e-12, maxiter=1, M=None, callback=None, residuals=None):
     def smoother(A,x,b):
         x[:] = (cg(A, b, x0=x, tol=tol, maxiter=maxiter, M=M, callback=callback, residuals=residuals)[0]).reshape(x.shape)

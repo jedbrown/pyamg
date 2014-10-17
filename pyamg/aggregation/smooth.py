@@ -8,7 +8,7 @@ import scipy.sparse as sparse
 import scipy.linalg as la
 from pyamg.util.utils import scale_rows, get_diagonal, get_block_diag, \
     UnAmal, filter_operator, compute_BtBinv
-from pyamg.util.linalg import approximate_spectral_radius, pinv_array
+from pyamg.util.linalg import approximate_spectral_radius
 import pyamg.amg_core
 
 __all__ = ['jacobi_prolongation_smoother', 'richardson_prolongation_smoother',
@@ -386,30 +386,31 @@ def cg_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter, tol,
     Satisfy_Constraints(R, B, BtBinv)
 
     if R.nnz == 0:
-        print "Error in sa_energy_min(..).  Initial R no nonzeros on a level. \
-               Returning tentative prolongator\n"
+        print("Error in sa_energy_min(..).  Initial R no nonzeros on a level. \
+               Returning tentative prolongator\n")
         return T
 
-    #Calculate Frobenius norm of the residual
+    # Calculate Frobenius norm of the residual
     resid = R.nnz  # np.sqrt((R.data.conjugate()*R.data).sum())
-    #print "Energy Minimization of Prolongator \
-    #       --- Iteration 0 --- r = " + str(resid)
+    # print("Energy Minimization of Prolongator \
+    #       --- Iteration 0 --- r = " + str(resid))
 
     i = 0
     while i < maxiter and resid > tol:
-        #Apply diagonal preconditioner
+        # Apply diagonal preconditioner
         if weighting == 'local' or weighting == 'diagonal':
             Z = scale_rows(R, Dinv)
         else:
             Z = Dinv*R
 
-        #Frobenius inner-product of (R,Z) = sum( np.conjugate(rk).*zk)
+        # F robenius inner-product of (R,Z) = sum( np.conjugate(rk).*zk)
         newsum = (R.conjugate().multiply(Z)).sum()
         if newsum < tol:
             # met tolerance, so halt
             break
 
-        #P is the search direction, not the prolongator, which is T.
+        # P is the search direction, not the prolongator, which is T.
+        oldsum = 0.0
         if(i == 0):
             P = Z
         else:
@@ -436,25 +437,25 @@ def cg_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter, tol,
         # Enforce AP*B = 0
         Satisfy_Constraints(AP, B, BtBinv)
 
-        #Frobenius inner-product of (P, AP)
+        # Frobenius inner-product of (P, AP)
         alpha = newsum/(P.conjugate().multiply(AP)).sum()
 
-        #Update the prolongator, T
+        # Update the prolongator, T
         T = T + alpha*P
 
         # Ensure identity at C-pts
         if Cpt_params[0]:
             T = Cpt_params[1]['I_F']*T + Cpt_params[1]['P_I']
 
-        #Update residual
+        # Update residual
         R = R - alpha*AP
 
         i += 1
 
-        #Calculate Frobenius norm of the residual
+        # Calculate Frobenius norm of the residual
         resid = R.nnz  # np.sqrt((R.data.conjugate()*R.data).sum())
-        #print "Energy Minimization of Prolongator \
-        #--- Iteration " + str(i) + " --- r = " + str(resid)
+        # print("Energy Minimization of Prolongator \
+        # --- Iteration " + str(i) + " --- r = " + str(resid))
 
     return T
 
@@ -518,8 +519,8 @@ def cgnr_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter,
 
     '''
 
-    #For non-SPD system, apply CG on Normal Equations with Diagonal
-    #Preconditioning (requires transpose)
+    # For non-SPD system, apply CG on Normal Equations with Diagonal
+    # Preconditioning (requires transpose)
     Ah = A.H
     Ah.sort_indices()
 
@@ -557,32 +558,33 @@ def cgnr_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter,
     Satisfy_Constraints(R, B, BtBinv)
 
     if R.nnz == 0:
-        print "Error in sa_energy_min(..).  Initial R no nonzeros on a level. \
-               Returning tentative prolongator\n"
+        print("Error in sa_energy_min(..).  Initial R no nonzeros on a level. \
+               Returning tentative prolongator\n")
         return T
 
-    #Calculate Frobenius norm of the residual
+    # Calculate Frobenius norm of the residual
     resid = R.nnz  # np.sqrt((R.data.conjugate()*R.data).sum())
-    #print "Energy Minimization of Prolongator \
-    #--- Iteration 0 --- r = " + str(resid)
+    # print("Energy Minimization of Prolongator \
+    # --- Iteration 0 --- r = " + str(resid))
 
     i = 0
     while i < maxiter and resid > tol:
 
-        vect = np.ravel((A*T).data)
-        #print "Iteration " + str(i) + "   \
-        #Energy = %1.3e"%np.sqrt( (vect.conjugate()*vect).sum() )
+        # vect = np.ravel((A*T).data)
+        # print("Iteration " + str(i) + "   \
+        # Energy = %1.3e"%np.sqrt( (vect.conjugate()*vect).sum() ))
 
-        #Apply diagonal preconditioner
+        # Apply diagonal preconditioner
         Z = scale_rows(R, Dinv)
 
-        #Frobenius innerproduct of (R,Z) = sum(rk.*zk)
+        # Frobenius innerproduct of (R,Z) = sum(rk.*zk)
         newsum = (R.conjugate().multiply(Z)).sum()
         if newsum < tol:
             # met tolerance, so halt
             break
 
-        #P is the search direction, not the prolongator, which is T.
+        # P is the search direction, not the prolongator, which is T.
+        oldsum = 0.0
         if(i == 0):
             P = Z
         else:
@@ -590,7 +592,7 @@ def cgnr_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter,
             P = Z + beta*P
         oldsum = newsum
 
-        #Calculate new direction
+        # Calculate new direction
         #  Equivalent to:  AP = Ah*(A*P);    AP = AP.multiply(Sparsity_Pattern)
         #  with the added constraint that explicit zeros are in AP wherever
         #  AP = 0 and Sparsity_Pattern does not
@@ -611,29 +613,29 @@ def cgnr_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter,
         # Enforce AP*B = 0
         Satisfy_Constraints(AP, B, BtBinv)
 
-        #Frobenius inner-product of (P, AP)
+        # Frobenius inner-product of (P, AP)
         alpha = newsum/(P.conjugate().multiply(AP)).sum()
 
-        #Update the prolongator, T
+        # Update the prolongator, T
         T = T + alpha*P
 
         # Ensure identity at C-pts
         if Cpt_params[0]:
             T = Cpt_params[1]['I_F']*T + Cpt_params[1]['P_I']
 
-        #Update residual
+        # Update residual
         R = R - alpha*AP
 
         i += 1
 
-        #Calculate Frobenius norm of the residual
+        # Calculate Frobenius norm of the residual
         resid = R.nnz  # np.sqrt((R.data.conjugate()*R.data).sum())
-        #print "Energy Minimization of Prolongator \
-        #--- Iteration " + str(i) + " --- r = " + str(resid)
+        # print("Energy Minimization of Prolongator \
+        # --- Iteration " + str(i) + " --- r = " + str(resid))
 
-    vect = np.ravel((A*T).data)
-    #print "Final Iteration " + str(i) + "   \
-    #Energy = %1.3e"%np.sqrt( (vect.conjugate()*vect).sum() )
+    # vect = np.ravel((A*T).data)
+    # print("Final Iteration " + str(i) + "   \
+    # Energy = %1.3e"%np.sqrt( (vect.conjugate()*vect).sum() ))
 
     return T
 
@@ -725,7 +727,7 @@ def gmres_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter,
 
     '''
 
-    #For non-SPD system, apply GMRES with Diagonal Preconditioning
+    # For non-SPD system, apply GMRES with Diagonal Preconditioning
 
     # Preallocate space for new search directions
     uones = np.zeros(Sparsity_Pattern.data.shape, dtype=T.dtype)
@@ -737,7 +739,6 @@ def gmres_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter,
     xtype = sparse.sputils.upcast(A.dtype, T.dtype, B.dtype)
     Q = []      # Givens Rotations
     V = []      # Krylov Space
-    vs = []     # vs store the pointers to each column of V for speed
 
     # Upper Hessenberg matrix, converted to upper tri with Givens Rots
     H = np.zeros((maxiter+1, maxiter+1), dtype=xtype)
@@ -778,7 +779,7 @@ def gmres_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter,
                                            T.blocksize[1])
     R.data *= -1.0
 
-    #Apply diagonal preconditioner
+    # Apply diagonal preconditioner
     if weighting == 'local' or weighting == 'diagonal':
         R = scale_rows(R, Dinv)
     else:
@@ -788,8 +789,8 @@ def gmres_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter,
     Satisfy_Constraints(R, B, BtBinv)
 
     if R.nnz == 0:
-        print "Error in sa_energy_min(..).  Initial R no nonzeros on a level. \
-               Returning tentative prolongator\n"
+        print("Error in sa_energy_min(..).  Initial R no nonzeros on a level. \
+               Returning tentative prolongator\n")
         return T
 
     # This is the RHS vector for the problem in the Krylov Space
@@ -802,13 +803,13 @@ def gmres_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter,
     if normr > 0.0:
         V.append((1.0/normr)*R)
 
-    #print "Energy Minimization of Prolongator \
-    #--- Iteration 0 --- r = " + str(normr)
+    # print("Energy Minimization of Prolongator \
+    # --- Iteration 0 --- r = " + str(normr))
     i = -1
-    #vect = np.ravel((A*T).data)
-    #print "Iteration " + str(i+1) + "   \
-    #Energy = %1.3e"%np.sqrt( (vect.conjugate()*vect).sum() )
-    #print "Iteration " + str(i+1) + "   Normr  %1.3e"%normr
+    # vect = np.ravel((A*T).data)
+    # print("Iteration " + str(i+1) + "   \
+    # Energy = %1.3e"%np.sqrt( (vect.conjugate()*vect).sum() ))
+    # print("Iteration " + str(i+1) + "   Normr  %1.3e"%normr)
     while i < maxiter-1 and normr > tol:
         i = i+1
 
@@ -882,7 +883,7 @@ def gmres_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter,
             H[i+1, i] = 0.0
 
         normr = np.abs(g[i+1])
-        #print "Iteration " + str(i+1) + "   Normr  %1.3e"%normr
+        # print("Iteration " + str(i+1) + "   Normr  %1.3e"%normr)
     # End while loop
 
     # Find best update to x in Krylov Space, V.  Solve (i x i) system.
@@ -891,9 +892,9 @@ def gmres_prolongation_smoothing(A, T, B, BtBinv, Sparsity_Pattern, maxiter,
         for j in range(i+1):
             T = T + y[j]*V[j]
 
-    #vect = np.ravel((A*T).data)
-    #print "Final Iteration " + str(i) + "   \
-    #Energy = %1.3e"%np.sqrt( (vect.conjugate()*vect).sum() )
+    # vect = np.ravel((A*T).data)
+    # print("Final Iteration " + str(i) + "   \
+    # Energy = %1.3e"%np.sqrt( (vect.conjugate()*vect).sum() ))
 
     # Ensure identity at C-pts
     if Cpt_params[0]:
@@ -983,7 +984,7 @@ def energy_prolongation_smoother(A, T, Atilde, B, Bf, Cpt_params,
     >>> row = numpy.arange(0,6)
     >>> col = numpy.kron([0,1],numpy.ones((3,)))
     >>> T = coo_matrix((data,(row,col)),shape=(6,2)).tocsr()
-    >>> print T.todense()
+    >>> print(T.todense())
     [[ 1.  0.]
      [ 1.  0.]
      [ 1.  0.]
@@ -993,7 +994,7 @@ def energy_prolongation_smoother(A, T, Atilde, B, Bf, Cpt_params,
     >>> A = poisson((6,),format='csr')
     >>> B = numpy.ones((2,1),dtype=float)
     >>> P = energy_prolongation_smoother(A,T,A,B, None, (False,{}))
-    >>> print P.todense()
+    >>> print(P.todense())
     [[ 1.          0.        ]
      [ 1.          0.        ]
      [ 0.66666667  0.33333333]
@@ -1014,9 +1015,9 @@ def energy_prolongation_smoother(A, T, Atilde, B, Bf, Cpt_params,
        966--991, 2011.
     """
 
-    #====================================================================
+    # ====================================================================
 
-    #Test Inputs
+    # Test Inputs
     if maxiter < 0:
         raise ValueError('maxiter must be > 0')
     if tol > 1:
@@ -1069,12 +1070,12 @@ def energy_prolongation_smoother(A, T, Atilde, B, Bf, Cpt_params,
         Sparsity_Pattern = AtildeCopy*Sparsity_Pattern
 
     ##
-    #UnAmal returns a BSR matrix
+    # UnAmal returns a BSR matrix
     Sparsity_Pattern = UnAmal(Sparsity_Pattern, T.blocksize[0], T.blocksize[1])
     Sparsity_Pattern.sort_indices()
 
     ##
-    #If using root nodes, enforce identity at C-points
+    # If using root nodes, enforce identity at C-points
     if Cpt_params[0]:
         Sparsity_Pattern = Cpt_params[1]['I_F']*Sparsity_Pattern
         Sparsity_Pattern = Cpt_params[1]['P_I'] + Sparsity_Pattern

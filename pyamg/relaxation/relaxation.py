@@ -15,12 +15,12 @@ import scipy.lib.lapack as la
 
 __all__ = ['sor', 'gauss_seidel', 'jacobi', 'polynomial', 'schwarz']
 __all__ += ['jacobi_ne', 'gauss_seidel_ne', 'gauss_seidel_nr']
-__all__ += ['gauss_seidel_indexed', 'block_jacobi', 'block_gauss_seidel'] 
+__all__ += ['gauss_seidel_indexed', 'block_jacobi', 'block_gauss_seidel']
 
 def make_system(A, x, b, formats=None):
     """
     Return A,x,b suitable for relaxation or raise an exception
-    
+
     Parameters
     ----------
     A : {sparse-matrix}
@@ -46,18 +46,18 @@ def make_system(A, x, b, formats=None):
 
     Examples
     --------
-    >>> from pyamg.relaxation.relaxation import make_system 
+    >>> from pyamg.relaxation.relaxation import make_system
     >>> from pyamg.gallery import poisson
     >>> import numpy
     >>> A = poisson((10,10), format='csr')
     >>> x = numpy.zeros((A.shape[0],1))
     >>> b = numpy.ones((A.shape[0],1))
     >>> (A,x,b) = make_system(A,x,b,formats=['csc'])
-    >>> print str(x.shape)
+    >>> print(str(x.shape))
     (100,)
-    >>> print str(b.shape)
+    >>> print(str(b.shape))
     (100,)
-    >>> print A.format
+    >>> print(A.format)
     csc
     """
 
@@ -94,7 +94,7 @@ def make_system(A, x, b, formats=None):
 
     if A.dtype != x.dtype or A.dtype != b.dtype:
         raise TypeError('arguments A, x, and b must have the same dtype')
-    
+
     if not x.flags.carray:
         raise ValueError('x must be contiguous in memory')
 
@@ -124,7 +124,7 @@ def sor(A, x, b, omega, iterations=1, sweep='forward'):
     Returns
     -------
     Nothing, x will be modified in place.
-   
+
     Notes
     -----
     When omega=1.0, SOR is equivalent to Gauss-Seidel.
@@ -140,14 +140,14 @@ def sor(A, x, b, omega, iterations=1, sweep='forward'):
     >>> x0 = numpy.zeros((A.shape[0],1))
     >>> b = numpy.ones((A.shape[0],1))
     >>> sor(A, x0, b, 1.33, iterations=10)
-    >>> print norm(b-A*x0)
+    >>> print(norm(b-A*x0))
     3.03888724811
     >>> #
-    >>> ## Use SOR as the multigrid smoother 
+    >>> ## Use SOR as the multigrid smoother
     >>> from pyamg import smoothed_aggregation_solver
     >>> sa = smoothed_aggregation_solver(A, B=numpy.ones((A.shape[0],1)),
     ...         coarse_solver='pinv2', max_coarse=50,
-    ...         presmoother=('sor', {'sweep':'symmetric', 'omega' : 1.33}), 
+    ...         presmoother=('sor', {'sweep':'symmetric', 'omega' : 1.33}),
     ...         postsmoother=('sor', {'sweep':'symmetric', 'omega' : 1.33}))
     >>> x0 = numpy.zeros((A.shape[0],1))
     >>> residuals=[]
@@ -161,15 +161,15 @@ def sor(A, x, b, omega, iterations=1, sweep='forward'):
         x_old[:] = x
 
         gauss_seidel(A, x, b, iterations=1, sweep=sweep)
-        
+
         x     *= omega
         x_old *= (1-omega)
         x     += x_old
 
 
-def schwarz(A, x, b, iterations=1, subdomain=None, subdomain_ptr=None, 
+def schwarz(A, x, b, iterations=1, subdomain=None, subdomain_ptr=None,
             inv_subblock=None, inv_subblock_ptr=None, sweep='forward'):
-    """Perform Overlapping multiplicative Schwarz on 
+    """Perform Overlapping multiplicative Schwarz on
        the linear system Ax=b
 
     Parameters
@@ -185,14 +185,14 @@ def schwarz(A, x, b, iterations=1, subdomain=None, subdomain_ptr=None,
     subdomain : {int array}
         Linear array containing each subdomain's elements
     subdomain_ptr : {int array}
-        Pointer in subdomain, such that 
+        Pointer in subdomain, such that
         subdomain[subdomain_ptr[i]:subdomain_ptr[i+1]]]
         contains the _sorted_ indices in subdomain i
     inv_subblock : {int_array}
-        Linear array containing each subdomain's 
+        Linear array containing each subdomain's
         inverted diagonal block of A
     inv_subblock_ptr : {int array}
-        Pointer in inv_subblock, such that 
+        Pointer in inv_subblock, such that
         inv_subblock[inv_subblock_ptr[i]:inv_subblock_ptr[i+1]]]
         contains the inverted diagonal block of A for the
         i-th subdomain in _row_ major order
@@ -209,7 +209,7 @@ def schwarz(A, x, b, iterations=1, subdomain=None, subdomain_ptr=None,
     with the overlapping region defined by each degree-of-freedom's
     neighbors in the matrix graph.
 
-    If subdomains is not None, but subblocks is, then the subblocks 
+    If subdomains is not None, but subblocks is, then the subblocks
     are formed internally.
 
     Currently only supports CSR matrices
@@ -225,14 +225,14 @@ def schwarz(A, x, b, iterations=1, subdomain=None, subdomain_ptr=None,
     >>> x0 = numpy.zeros((A.shape[0],1))
     >>> b = numpy.ones((A.shape[0],1))
     >>> schwarz(A, x0, b, iterations=10)
-    >>> print norm(b-A*x0)
+    >>> print(norm(b-A*x0))
     0.126326160522
     >>> #
     >>> ## Schwarz as the Multigrid Smoother
     >>> from pyamg import smoothed_aggregation_solver
     >>> sa = smoothed_aggregation_solver(A, B=numpy.ones((A.shape[0],1)),
     ...         coarse_solver='pinv2', max_coarse=50,
-    ...         presmoother='schwarz', 
+    ...         presmoother='schwarz',
     ...         postsmoother='schwarz')
     >>> x0=numpy.zeros((A.shape[0],1))
     >>> residuals=[]
@@ -242,7 +242,7 @@ def schwarz(A, x, b, iterations=1, subdomain=None, subdomain_ptr=None,
 
     if subdomain is None and inv_subblock is not None:
         raise ValueError("inv_subblock must be None if subdomain is None")
-    
+
     ##
     # If no subdomains are defined, the default is to use the sparsity pattern of A
     # to define the overlapping regions
@@ -252,13 +252,13 @@ def schwarz(A, x, b, iterations=1, subdomain=None, subdomain_ptr=None,
     if sweep == 'forward':
         row_start,row_stop,row_step = 0,subdomain_ptr.shape[0]-1,1
     elif sweep == 'backward':
-        row_start,row_stop,row_step = subdomain_ptr.shape[0]-2,-1,-1 
+        row_start,row_stop,row_step = subdomain_ptr.shape[0]-2,-1,-1
     elif sweep == 'symmetric':
         for iter in xrange(iterations):
-            schwarz(A, x, b, iterations=1, subdomain=subdomain, subdomain_ptr=subdomain_ptr, 
-                inv_subblock=inv_subblock, inv_subblock_ptr=inv_subblock_ptr, sweep='forward') 
-            schwarz(A, x, b, iterations=1, subdomain=subdomain, subdomain_ptr=subdomain_ptr, 
-                inv_subblock=inv_subblock, inv_subblock_ptr=inv_subblock_ptr, sweep='backward') 
+            schwarz(A, x, b, iterations=1, subdomain=subdomain, subdomain_ptr=subdomain_ptr,
+                inv_subblock=inv_subblock, inv_subblock_ptr=inv_subblock_ptr, sweep='forward')
+            schwarz(A, x, b, iterations=1, subdomain=subdomain, subdomain_ptr=subdomain_ptr,
+                inv_subblock=inv_subblock, inv_subblock_ptr=inv_subblock_ptr, sweep='backward')
         return
     else:
         raise ValueError("valid sweep directions are 'forward', 'backward', and 'symmetric'")
@@ -271,8 +271,8 @@ def schwarz(A, x, b, iterations=1, subdomain=None, subdomain_ptr=None,
                                      subdomain, subdomain_ptr,
                                      subdomain_ptr.shape[0]-1, A.shape[0],
                                      row_start,row_stop,row_step)
-    
-    
+
+
 
 def gauss_seidel(A, x, b, iterations=1, sweep='forward'):
     """Perform Gauss-Seidel iteration on the linear system Ax=b
@@ -305,14 +305,14 @@ def gauss_seidel(A, x, b, iterations=1, sweep='forward'):
     >>> x0 = numpy.zeros((A.shape[0],1))
     >>> b = numpy.ones((A.shape[0],1))
     >>> gauss_seidel(A, x0, b, iterations=10)
-    >>> print norm(b-A*x0)
+    >>> print(norm(b-A*x0))
     4.00733716236
     >>> #
     >>> ## Use Gauss-Seidel as the Multigrid Smoother
     >>> from pyamg import smoothed_aggregation_solver
     >>> sa = smoothed_aggregation_solver(A, B=numpy.ones((A.shape[0],1)),
     ...         coarse_solver='pinv2', max_coarse=50,
-    ...         presmoother=('gauss_seidel', {'sweep':'symmetric'}), 
+    ...         presmoother=('gauss_seidel', {'sweep':'symmetric'}),
     ...         postsmoother=('gauss_seidel', {'sweep':'symmetric'}))
     >>> x0=numpy.zeros((A.shape[0],1))
     >>> residuals=[]
@@ -323,7 +323,7 @@ def gauss_seidel(A, x, b, iterations=1, sweep='forward'):
     if sweep == 'forward':
         row_start,row_stop,row_step = 0,len(x),1
     elif sweep == 'backward':
-        row_start,row_stop,row_step = len(x)-1,-1,-1 
+        row_start,row_stop,row_step = len(x)-1,-1,-1
     elif sweep == 'symmetric':
         for iter in xrange(iterations):
             gauss_seidel(A, x, b, iterations=1, sweep='forward')
@@ -367,7 +367,7 @@ def jacobi(A, x, b, iterations=1, omega=1.0):
     Returns
     -------
     Nothing, x will be modified in place.
-   
+
     Examples
     --------
     >>> ## Use Jacobi as a Stand-Alone Solver
@@ -379,14 +379,14 @@ def jacobi(A, x, b, iterations=1, omega=1.0):
     >>> x0 = numpy.zeros((A.shape[0],1))
     >>> b = numpy.ones((A.shape[0],1))
     >>> jacobi(A, x0, b, iterations=10, omega=1.0)
-    >>> print norm(b-A*x0)
+    >>> print(norm(b-A*x0))
     5.83475132751
     >>> #
     >>> ## Use Jacobi as the Multigrid Smoother
     >>> from pyamg import smoothed_aggregation_solver
     >>> sa = smoothed_aggregation_solver(A, B=numpy.ones((A.shape[0],1)),
     ...         coarse_solver='pinv2', max_coarse=50,
-    ...         presmoother=('jacobi', {'omega': 4.0/3.0, 'iterations' : 2}), 
+    ...         presmoother=('jacobi', {'omega': 4.0/3.0, 'iterations' : 2}),
     ...         postsmoother=('jacobi', {'omega': 4.0/3.0, 'iterations' : 2}))
     >>> x0=numpy.zeros((A.shape[0],1))
     >>> residuals=[]
@@ -401,7 +401,7 @@ def jacobi(A, x, b, iterations=1, omega=1.0):
         return
 
     temp = numpy.empty_like(x)
-    
+
     # Create uniform type, and convert possibly complex scalars to length 1 arrays
     [omega] = type_prep(A.dtype, [omega])
 
@@ -432,7 +432,7 @@ def block_jacobi(A, x, b, Dinv=None, blocksize=1, iterations=1, omega=1.0):
     b : ndarray
         Right-hand side (length N)
     Dinv : array
-        Array holding block diagonal inverses of A 
+        Array holding block diagonal inverses of A
         size (N/blocksize, blocksize, blocksize)
     blocksize : int
         Desired dimension of blocks
@@ -444,7 +444,7 @@ def block_jacobi(A, x, b, Dinv=None, blocksize=1, iterations=1, omega=1.0):
     Returns
     -------
     Nothing, x will be modified in place.
-   
+
     Examples
     --------
     >>> ## Use block Jacobi as a Stand-Alone Solver
@@ -456,14 +456,14 @@ def block_jacobi(A, x, b, Dinv=None, blocksize=1, iterations=1, omega=1.0):
     >>> x0 = numpy.zeros((A.shape[0],1))
     >>> b = numpy.ones((A.shape[0],1))
     >>> block_jacobi(A, x0, b, blocksize=4, iterations=10, omega=1.0)
-    >>> print norm(b-A*x0)
+    >>> print(norm(b-A*x0))
     4.66474230129
     >>> #
     >>> ## Use block Jacobi as the Multigrid Smoother
     >>> from pyamg import smoothed_aggregation_solver
     >>> sa = smoothed_aggregation_solver(A, B=numpy.ones((A.shape[0],1)),
     ...        coarse_solver='pinv2', max_coarse=50,
-    ...        presmoother=('block_jacobi', {'omega': 4.0/3.0, 'iterations' : 2, 'blocksize' : 4}), 
+    ...        presmoother=('block_jacobi', {'omega': 4.0/3.0, 'iterations' : 2, 'blocksize' : 4}),
     ...        postsmoother=('block_jacobi', {'omega': 4.0/3.0, 'iterations' : 2, 'blocksize' : 4}))
     >>> x0=numpy.zeros((A.shape[0],1))
     >>> residuals=[]
@@ -479,7 +479,7 @@ def block_jacobi(A, x, b, Dinv=None, blocksize=1, iterations=1, omega=1.0):
         raise ValueError('Dinv and A have incompatible dimensions')
     elif (Dinv.shape[1] != blocksize) or (Dinv.shape[2] != blocksize):
         raise ValueError('Dinv and blocksize are incompatible')
-    
+
     sweep = slice(None)
     (row_start,row_stop,row_step) = sweep.indices(A.shape[0]/blocksize)
 
@@ -487,7 +487,7 @@ def block_jacobi(A, x, b, Dinv=None, blocksize=1, iterations=1, omega=1.0):
         return
 
     temp = numpy.empty_like(x)
-    
+
     # Create uniform type, and convert possibly complex scalars to length 1 arrays
     [omega] = type_prep(A.dtype, [omega])
 
@@ -513,7 +513,7 @@ def block_gauss_seidel(A, x, b, iterations=1, sweep='forward', blocksize=1, Dinv
     sweep : {'forward','backward','symmetric'}
         Direction of sweep
     Dinv : array
-        Array holding block diagonal inverses of A 
+        Array holding block diagonal inverses of A
         size (N/blocksize, blocksize, blocksize)
     blocksize : int
         Desired dimension of blocks
@@ -534,14 +534,14 @@ def block_gauss_seidel(A, x, b, iterations=1, sweep='forward', blocksize=1, Dinv
     >>> x0 = numpy.zeros((A.shape[0],1))
     >>> b = numpy.ones((A.shape[0],1))
     >>> block_gauss_seidel(A, x0, b, iterations=10, blocksize=4, sweep='symmetric')
-    >>> print norm(b-A*x0)
+    >>> print(norm(b-A*x0))
     0.958333817624
     >>> #
     >>> ## Use Gauss-Seidel as the Multigrid Smoother
     >>> from pyamg import smoothed_aggregation_solver
     >>> sa = smoothed_aggregation_solver(A, B=numpy.ones((A.shape[0],1)),
     ...        coarse_solver='pinv2', max_coarse=50,
-    ...        presmoother=('block_gauss_seidel', {'sweep':'symmetric', 'blocksize' : 4}), 
+    ...        presmoother=('block_gauss_seidel', {'sweep':'symmetric', 'blocksize' : 4}),
     ...        postsmoother=('block_gauss_seidel', {'sweep':'symmetric', 'blocksize' : 4}))
     >>> x0=numpy.zeros((A.shape[0],1))
     >>> residuals=[]
@@ -549,7 +549,7 @@ def block_gauss_seidel(A, x, b, iterations=1, sweep='forward', blocksize=1, Dinv
     """
     A,x,b = make_system(A, x, b, formats=['csr','bsr'])
     A = A.tobsr(blocksize=(blocksize, blocksize))
-    
+
     if Dinv == None:
         Dinv = get_block_diag(A, blocksize=blocksize, inv_flag=True)
     elif Dinv.shape[0] != A.shape[0]/blocksize:
@@ -560,7 +560,7 @@ def block_gauss_seidel(A, x, b, iterations=1, sweep='forward', blocksize=1, Dinv
     if sweep == 'forward':
         row_start,row_stop,row_step = 0,len(x)/blocksize,1
     elif sweep == 'backward':
-        row_start,row_stop,row_step = len(x)/blocksize-1,-1,-1 
+        row_start,row_stop,row_step = len(x)/blocksize-1,-1,-1
     elif sweep == 'symmetric':
         for iter in xrange(iterations):
             block_gauss_seidel(A, x, b, iterations=1, sweep='forward', blocksize=blocksize, Dinv=Dinv)
@@ -599,8 +599,8 @@ def polynomial(A, x, b, coefficients, iterations=1):
 
     Notes
     -----
-    The smoother has the form  x[:] = x + p(A) (b - A*x) where p(A) is a 
-    polynomial in A whose scalar coefficients are specified (in descending 
+    The smoother has the form  x[:] = x + p(A) (b - A*x) where p(A) is a
+    polynomial in A whose scalar coefficients are specified (in descending
     order) by argument 'coefficients'.
 
     - Richardson iteration p(A) = c_0:
@@ -612,14 +612,14 @@ def polynomial(A, x, b, coefficients, iterations=1):
     - Quadratic smoother p(A) = c_2*A^2 + c_1*A + c_0:
         polynomial_smoother(A, x, b, [c_2, c_1, c_0])
 
-    Here, Horner's Rule is applied to avoid computing A^k directly.  
-    
-    For efficience, the method detects the case x = 0 one matrix-vector 
+    Here, Horner's Rule is applied to avoid computing A^k directly.
+
+    For efficience, the method detects the case x = 0 one matrix-vector
     product is avoided (since (b - A*x) is b).
 
     Examples
     --------
-    >>> ## The polynomial smoother is not currently used directly 
+    >>> ## The polynomial smoother is not currently used directly
     >>> ## in PyAMG.  It is only used by the chebyshev smoothing option,
     >>> ## which automatically calculates the correct coefficients.
     >>> from pyamg.gallery import poisson
@@ -630,7 +630,7 @@ def polynomial(A, x, b, coefficients, iterations=1):
     >>> b = numpy.ones((A.shape[0],1))
     >>> sa = smoothed_aggregation_solver(A, B=numpy.ones((A.shape[0],1)),
     ...         coarse_solver='pinv2', max_coarse=50,
-    ...         presmoother=('chebyshev', {'degree':3, 'iterations':1}), 
+    ...         presmoother=('chebyshev', {'degree':3, 'iterations':1}),
     ...         postsmoother=('chebyshev', {'degree':3, 'iterations':1}))
     >>> x0=numpy.zeros((A.shape[0],1))
     >>> residuals=[]
@@ -647,10 +647,10 @@ def polynomial(A, x, b, coefficients, iterations=1):
             residual = (b - A*x)
 
         h = coefficients[0]*residual
-    
+
         for c in coefficients[1:]:
             h = c*residual + A*h
-    
+
         x += h
 
 
@@ -659,8 +659,8 @@ def gauss_seidel_indexed(A, x, b,  indices, iterations=1, sweep='forward'):
 
     In indexed Gauss-Seidel, the sequence in which unknowns are relaxed is
     specified explicitly.  In contrast, the standard Gauss-Seidel method
-    always performs complete sweeps of all variables in increasing or 
-    decreasing order.  The indexed method may be used to implement 
+    always performs complete sweeps of all variables in increasing or
+    decreasing order.  The indexed method may be used to implement
     specialized smoothers, like F-smoothing in Classical AMG.
 
     Parameters
@@ -709,7 +709,7 @@ def gauss_seidel_indexed(A, x, b,  indices, iterations=1, sweep='forward'):
     if sweep == 'forward':
         row_start,row_stop,row_step = 0,len(indices),1
     elif sweep == 'backward':
-        row_start,row_stop,row_step = len(indices)-1,-1,-1 
+        row_start,row_stop,row_step = len(indices)-1,-1,-1
     elif sweep == 'symmetric':
         for iter in xrange(iterations):
             gauss_seidel_indexed(A, x, b, indices, iterations=1, sweep='forward')
@@ -726,7 +726,7 @@ def gauss_seidel_indexed(A, x, b,  indices, iterations=1, sweep='forward'):
 def jacobi_ne(A, x, b, iterations=1, omega=1.0):
     """Perform Jacobi iterations on the linear system A A.H x = A.H b
        (Also known as Cimmino relaxation)
-    
+
     Parameters
     ----------
     A : csr_matrix
@@ -746,16 +746,16 @@ def jacobi_ne(A, x, b, iterations=1, omega=1.0):
 
     References
     ----------
-    .. [1] Brandt, Ta'asan.  
+    .. [1] Brandt, Ta'asan.
        "Multigrid Method For Nearly Singular And Slightly Indefinite Problems."
        1985.  NASA Technical Report Numbers: ICASE-85-57; NAS 1.26:178026; NASA-CR-178026;
 
-    .. [2] Kaczmarz.  Angenaeherte Aufloesung von Systemen Linearer Gleichungen. 
-       Bull. Acad.  Polon. Sci. Lett. A 35, 355-57.  1937 
+    .. [2] Kaczmarz.  Angenaeherte Aufloesung von Systemen Linearer Gleichungen.
+       Bull. Acad.  Polon. Sci. Lett. A 35, 355-57.  1937
 
-    .. [3] Cimmino. La ricerca scientifica ser. II 1. 
+    .. [3] Cimmino. La ricerca scientifica ser. II 1.
        Pubbliz. dell'Inst. pre le Appl. del Calculo 34, 326-333, 1938.
-    
+
     Examples
     --------
     >>> ## Use NE Jacobi as a Stand-Alone Solver
@@ -767,39 +767,39 @@ def jacobi_ne(A, x, b, iterations=1, omega=1.0):
     >>> x0 = numpy.zeros((A.shape[0],1))
     >>> b = numpy.ones((A.shape[0],1))
     >>> jacobi_ne(A, x0, b, iterations=10, omega=2.0/3.0)
-    >>> print norm(b-A*x0)
+    >>> print(norm(b-A*x0))
     49.3886046066
     >>> #
     >>> ## Use NE Jacobi as the Multigrid Smoother
     >>> from pyamg import smoothed_aggregation_solver
     >>> sa = smoothed_aggregation_solver(A, B=numpy.ones((A.shape[0],1)),
     ...         coarse_solver='pinv2', max_coarse=50,
-    ...         presmoother=('jacobi_ne', {'iterations' : 2, 'omega' : 4.0/3.0}), 
+    ...         presmoother=('jacobi_ne', {'iterations' : 2, 'omega' : 4.0/3.0}),
     ...         postsmoother=('jacobi_ne', {'iterations' : 2, 'omega' : 4.0/3.0}))
     >>> x0=numpy.zeros((A.shape[0],1))
     >>> residuals=[]
     >>> x = sa.solve(b, x0=x0, tol=1e-8, residuals=residuals)
     """
     A,x,b = make_system(A, x, b, formats=['csr'])
-    
+
     sweep = slice(None)
     (row_start,row_stop,row_step) = sweep.indices(A.shape[0])
-    
+
     temp = numpy.zeros_like(x)
-    
+
     # Dinv for A*A.H
     Dinv = get_diagonal(A, norm_eq=2, inv=True)
-    
-    
+
+
     # Create uniform type, and convert possibly complex scalars to length 1 arrays
     [omega] = type_prep(A.dtype, [omega])
-    
+
     for i in range(iterations):
         delta = (numpy.ravel(b - A*x)*numpy.ravel(Dinv)).astype(A.dtype)
         amg_core.jacobi_ne(A.indptr, A.indices, A.data,
                                        x, b, delta, temp, row_start,
-                                       row_stop, row_step, omega)  
-    
+                                       row_stop, row_step, omega)
+
 
 def gauss_seidel_ne(A, x, b, iterations=1, sweep='forward', omega=1.0, Dinv=None):
     """Perform Gauss-Seidel iterations on the linear system A A.H x = b
@@ -826,16 +826,16 @@ def gauss_seidel_ne(A, x, b, iterations=1, sweep='forward', omega=1.0, Dinv=None
     Returns
     -------
     Nothing, x will be modified in place.
-    
+
     References
     ----------
-    .. [1] Brandt, Ta'asan.  
+    .. [1] Brandt, Ta'asan.
        "Multigrid Method For Nearly Singular And Slightly Indefinite Problems."
        1985.  NASA Technical Report Numbers: ICASE-85-57; NAS 1.26:178026; NASA-CR-178026;
 
-    .. [2] Kaczmarz.  Angenaeherte Aufloesung von Systemen Linearer Gleichungen. 
-       Bull. Acad.  Polon. Sci. Lett. A 35, 355-57.  1937 
-    
+    .. [2] Kaczmarz.  Angenaeherte Aufloesung von Systemen Linearer Gleichungen.
+       Bull. Acad.  Polon. Sci. Lett. A 35, 355-57.  1937
+
     Examples
     --------
     >>> ## Use NE Gauss-Seidel as a Stand-Alone Solver
@@ -847,30 +847,30 @@ def gauss_seidel_ne(A, x, b, iterations=1, sweep='forward', omega=1.0, Dinv=None
     >>> x0 = numpy.zeros((A.shape[0],1))
     >>> b = numpy.ones((A.shape[0],1))
     >>> gauss_seidel_ne(A, x0, b, iterations=10, sweep='symmetric')
-    >>> print norm(b-A*x0)
+    >>> print(norm(b-A*x0))
     8.47576806771
     >>> #
     >>> ## Use NE Gauss-Seidel as the Multigrid Smoother
     >>> from pyamg import smoothed_aggregation_solver
     >>> sa = smoothed_aggregation_solver(A, B=numpy.ones((A.shape[0],1)),
     ...         coarse_solver='pinv2', max_coarse=50,
-    ...         presmoother=('gauss_seidel_ne', {'sweep' : 'symmetric'}), 
+    ...         presmoother=('gauss_seidel_ne', {'sweep' : 'symmetric'}),
     ...         postsmoother=('gauss_seidel_ne', {'sweep' : 'symmetric'}))
     >>> x0=numpy.zeros((A.shape[0],1))
     >>> residuals=[]
     >>> x = sa.solve(b, x0=x0, tol=1e-8, residuals=residuals)
     """
-    
+
     A,x,b = make_system(A, x, b, formats=['csr'])
-    
+
     # Dinv for A*A.H
     if Dinv == None:
         Dinv = numpy.ravel(get_diagonal(A, norm_eq=2, inv=True))
-    
+
     if sweep == 'forward':
         row_start,row_stop,row_step = 0,len(x),1
     elif sweep == 'backward':
-        row_start,row_stop,row_step = len(x)-1,-1,-1 
+        row_start,row_stop,row_step = len(x)-1,-1,-1
     elif sweep == 'symmetric':
         for iter in xrange(iterations):
             gauss_seidel_ne(A, x, b, iterations=1, sweep='forward', omega=omega, Dinv=Dinv)
@@ -886,7 +886,7 @@ def gauss_seidel_ne(A, x, b, iterations=1, sweep='forward', omega=1.0, Dinv=None
 
 def gauss_seidel_nr(A, x, b, iterations=1, sweep='forward', omega=1.0, Dinv=None):
     """Perform Gauss-Seidel iterations on the linear system A.H A x = A.H b
-    
+
     Parameters
     ----------
     A : csr_matrix
@@ -908,14 +908,14 @@ def gauss_seidel_nr(A, x, b, iterations=1, sweep='forward', omega=1.0, Dinv=None
     Returns
     -------
     Nothing, x will be modified in place.
-    
+
     References
     ----------
-    .. [1] Yousef Saad, "Iterative Methods for Sparse Linear Systems, 
+    .. [1] Yousef Saad, "Iterative Methods for Sparse Linear Systems,
        Second Edition", SIAM, pp. 247-9, 2003
        http://www-users.cs.umn.edu/~saad/books.html
- 
-    
+
+
     Examples
     --------
     >>> ## Use NR Gauss-Seidel as a Stand-Alone Solver
@@ -927,30 +927,30 @@ def gauss_seidel_nr(A, x, b, iterations=1, sweep='forward', omega=1.0, Dinv=None
     >>> x0 = numpy.zeros((A.shape[0],1))
     >>> b = numpy.ones((A.shape[0],1))
     >>> gauss_seidel_nr(A, x0, b, iterations=10, sweep='symmetric')
-    >>> print norm(b-A*x0)
+    >>> print(norm(b-A*x0))
     8.45044864352
     >>> #
     >>> ## Use NR Gauss-Seidel as the Multigrid Smoother
     >>> from pyamg import smoothed_aggregation_solver
     >>> sa = smoothed_aggregation_solver(A, B=numpy.ones((A.shape[0],1)),
     ...      coarse_solver='pinv2', max_coarse=50,
-    ...      presmoother=('gauss_seidel_nr', {'sweep' : 'symmetric'}), 
+    ...      presmoother=('gauss_seidel_nr', {'sweep' : 'symmetric'}),
     ...      postsmoother=('gauss_seidel_nr', {'sweep' : 'symmetric'}))
     >>> x0=numpy.zeros((A.shape[0],1))
     >>> residuals=[]
     >>> x = sa.solve(b, x0=x0, tol=1e-8, residuals=residuals)
     """
-    
+
     A,x,b = make_system(A, x, b, formats=['csc'])
-    
+
     # Dinv for A.H*A
     if Dinv == None:
         Dinv = numpy.ravel(get_diagonal(A, norm_eq=1, inv=True))
-    
+
     if sweep == 'forward':
         col_start,col_stop,col_step = 0,len(x),1
     elif sweep == 'backward':
-        col_start,col_stop,col_step = len(x)-1,-1,-1 
+        col_start,col_stop,col_step = len(x)-1,-1,-1
     elif sweep == 'symmetric':
         for iter in xrange(iterations):
             gauss_seidel_nr(A, x, b, iterations=1, sweep='forward', omega=omega, Dinv=Dinv)

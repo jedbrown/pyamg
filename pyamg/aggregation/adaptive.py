@@ -432,7 +432,7 @@ def initial_setup_stage(A, symmetry, pdef, candidate_iters, epsilon,
     # _is_ good, but the remaining passes are poor
     # if x_A_x/x_A_x_old < epsilon:
     #    # relaxation alone is sufficient
-    #    print 'relaxation alone works: %g'%(x_A_x/x_A_x_old)
+    #    print('relaxation alone works: %g'%(x_A_x/x_A_x_old))
     #    return x, []
 
     # step 4
@@ -540,7 +540,7 @@ def initial_setup_stage(A, symmetry, pdef, candidate_iters, epsilon,
                 err_ratio = (x_A_x/xhat_A_xhat)**(1.0/candidate_iters)
 
             if err_ratio < epsilon:  # step 4i
-                #print "sufficient convergence, skipping"
+                #print("sufficient convergence, skipping")
                 skip_f_to_i = True
                 if x_A_x == 0:
                     x = x_hat  # need to restore x

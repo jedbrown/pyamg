@@ -21,7 +21,7 @@ class TestMultilevel(TestCase):
         cases.append( csr_matrix(diag(arange(1,5,dtype=float))) )
         cases.append( poisson( (4,),  format='csr') )
         cases.append( poisson( (4,4), format='csr') )
-      
+
         from pyamg.krylov import cg
         def fn(A, b):
             return cg(A, b)[0]
@@ -37,7 +37,7 @@ class TestMultilevel(TestCase):
                 assert_almost_equal(A*x, b)
 
                 # subsequent calls use cached data
-                x = s(A,b)  
+                x = s(A,b)
                 assert_almost_equal(A*x, b)
 
     def test_aspreconditioner(self):
@@ -55,7 +55,7 @@ class TestMultilevel(TestCase):
             x,info = cg(A, b, tol=1e-8, maxiter=30, M=M)
             # cg satisfies convergence in the preconditioner norm
             assert(precon_norm(b - A*x,ml) < 1e-8*precon_norm(b,ml))
-        
+
         for cycle in ['AMLI']:
             M = ml.aspreconditioner(cycle=cycle)
             x,info = fgmres(A, b, tol=1e-8, maxiter=30, M=M)
@@ -71,7 +71,7 @@ class TestMultilevel(TestCase):
         b = rand(A.shape[0])
 
         ml = smoothed_aggregation_solver(A)
-        
+
         # cg halts based on the preconditioner norm
         for accel in ['cg',cg]:
             x = ml.solve(b, maxiter=30, tol=1e-8, accel=accel)
@@ -79,9 +79,9 @@ class TestMultilevel(TestCase):
             residuals = []
             x = ml.solve(b, maxiter=30, tol=1e-8, residuals=residuals, accel=accel)
             assert(precon_norm(b - A*x,ml) < 1e-8*precon_norm(b,ml))
-            #print residuals
+            # print(residuals)
             assert_almost_equal(precon_norm(b - A*x,ml), residuals[-1])
-        
+
         # cgs and bicgstab use the Euclidean norm
         for accel in ['bicgstab', 'cgs', bicgstab]:
             x = ml.solve(b, maxiter=30, tol=1e-8, accel=accel)
@@ -89,7 +89,7 @@ class TestMultilevel(TestCase):
             residuals = []
             x = ml.solve(b, maxiter=30, tol=1e-8, residuals=residuals, accel=accel)
             assert(norm(b - A*x) < 1e-8*norm(b))
-            #print residuals
+            # print(residuals)
             assert_almost_equal(norm(b - A*x), residuals[-1])
 
 
@@ -110,31 +110,31 @@ class TestMultilevel(TestCase):
 
         # one level hierarchy
         mg = multilevel_solver(levels[:1])
-        assert_equal(mg.cycle_complexity(cycle='V'), 100.0/100.0) #1
-        assert_equal(mg.cycle_complexity(cycle='W'), 100.0/100.0) #1
-        assert_equal(mg.cycle_complexity(cycle='AMLI'), 100.0/100.0) #1
-        assert_equal(mg.cycle_complexity(cycle='F'), 100.0/100.0) #1
+        assert_equal(mg.cycle_complexity(cycle='V'), 100.0/100.0) # 1
+        assert_equal(mg.cycle_complexity(cycle='W'), 100.0/100.0) # 1
+        assert_equal(mg.cycle_complexity(cycle='AMLI'), 100.0/100.0) # 1
+        assert_equal(mg.cycle_complexity(cycle='F'), 100.0/100.0) # 1
 
         # two level hierarchy
         mg = multilevel_solver(levels[:2])
-        assert_equal(mg.cycle_complexity(cycle='V'), 225.0/100.0) #2,1
-        assert_equal(mg.cycle_complexity(cycle='W'), 225.0/100.0) #2,1
-        assert_equal(mg.cycle_complexity(cycle='AMLI'), 225.0/100.0) #2,1
-        assert_equal(mg.cycle_complexity(cycle='F'), 225.0/100.0) #2,1
+        assert_equal(mg.cycle_complexity(cycle='V'), 225.0/100.0) # 2,1
+        assert_equal(mg.cycle_complexity(cycle='W'), 225.0/100.0) # 2,1
+        assert_equal(mg.cycle_complexity(cycle='AMLI'), 225.0/100.0) # 2,1
+        assert_equal(mg.cycle_complexity(cycle='F'), 225.0/100.0) # 2,1
 
         # three level hierarchy
         mg = multilevel_solver(levels[:3])
-        assert_equal(mg.cycle_complexity(cycle='V'), 259.0/100.0) #2,2,1
-        assert_equal(mg.cycle_complexity(cycle='W'), 318.0/100.0) #2,4,2
-        assert_equal(mg.cycle_complexity(cycle='AMLI'), 318.0/100.0) #2,4,2
-        assert_equal(mg.cycle_complexity(cycle='F'), 318.0/100.0) #2,4,2
-        
+        assert_equal(mg.cycle_complexity(cycle='V'), 259.0/100.0) # 2,2,1
+        assert_equal(mg.cycle_complexity(cycle='W'), 318.0/100.0) # 2,4,2
+        assert_equal(mg.cycle_complexity(cycle='AMLI'), 318.0/100.0) # 2,4,2
+        assert_equal(mg.cycle_complexity(cycle='F'), 318.0/100.0) # 2,4,2
+
         # four level hierarchy
         mg = multilevel_solver(levels[:4])
-        assert_equal(mg.cycle_complexity(cycle='V'), 272.0/100.0) #2,2,2,1
-        assert_equal(mg.cycle_complexity(cycle='W'), 388.0/100.0) #2,4,8,4
-        assert_equal(mg.cycle_complexity(cycle='AMLI'), 388.0/100.0) #2,4,8,4
-        assert_equal(mg.cycle_complexity(cycle='F'), 366.0/100.0) #2,4,6,3
+        assert_equal(mg.cycle_complexity(cycle='V'), 272.0/100.0) # 2,2,2,1
+        assert_equal(mg.cycle_complexity(cycle='W'), 388.0/100.0) # 2,4,8,4
+        assert_equal(mg.cycle_complexity(cycle='AMLI'), 388.0/100.0) # 2,4,8,4
+        assert_equal(mg.cycle_complexity(cycle='F'), 366.0/100.0) # 2,4,6,3
 
 
 class TestComplexMultilevel(TestCase):
@@ -144,11 +144,11 @@ class TestComplexMultilevel(TestCase):
         cases.append( csr_matrix(diag(arange(1,5))) )
         cases.append( poisson( (4,),  format='csr') )
         cases.append( poisson( (4,4), format='csr') )
-        
+
         # Make cases complex
         cases = [ G+1e-5j*G for G in cases ]
         cases = [ 0.5*(G + G.H) for G in cases ]
-        
+
         # method should be almost exact for small matrices
         for A in cases:
             for solver in ['splu','pinv','pinv2','lu','cholesky','cg']:
@@ -160,7 +160,7 @@ class TestComplexMultilevel(TestCase):
                 assert_almost_equal( A*x, b)
 
                 # subsequent calls use cached data
-                x = s(A,b)  
+                x = s(A,b)
                 assert_almost_equal( A*x, b)
 
 
