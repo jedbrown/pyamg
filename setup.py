@@ -10,7 +10,8 @@ import os
 import sys
 import subprocess
 
-if sys.version_info[:2] < (2, 6) or (3, 0) <= sys.version_info[0:2]:
+ver = sys.version_info[:2]
+if ver < (2, 6) or ((3, 0) <= ver and ver < (3, 2)):
     raise RuntimeError("Python version 2.6, 2.7 required.")
 
 if sys.version_info[0] >= 3:
@@ -83,8 +84,9 @@ def git_version():
         env['LANGUAGE'] = 'C'
         env['LANG'] = 'C'
         env['LC_ALL'] = 'C'
-        out = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                               env=env).communicate()[0]
+        # out = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+        #                        env=env).communicate()[0]
+        out = subprocess.check_output(cmd, env=env).decode()
         return out
 
     try:
@@ -92,7 +94,6 @@ def git_version():
         GIT_REVISION = out.strip()
     except OSError:
         GIT_REVISION = "Unknown"
-
     return GIT_REVISION
 
 # BEFORE importing distutils, remove MANIFEST. distutils doesn't properly

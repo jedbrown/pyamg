@@ -5,6 +5,7 @@
 #pragma SWIG nowarn=467
 
 %{
+#include "py3k.h"
 #define SWIG_FILE_WITH_INIT
 #include "numpy/arrayobject.h"
 
@@ -99,13 +100,13 @@
 
 %define T_ARRAY_ARGOUT( ctype )
 %apply std::vector<ctype>* array_argout {
-    std::vector<ctype>* Ax, 
+    std::vector<ctype>* Ax,
     std::vector<ctype>* Bx,
-    std::vector<ctype>* Cx, 
+    std::vector<ctype>* Cx,
     std::vector<ctype>* Sx,
-    std::vector<ctype>* Tx, 
+    std::vector<ctype>* Tx,
     std::vector<ctype>* Xx,
-    std::vector<ctype>* Yx 
+    std::vector<ctype>* Yx
 };
 %enddef
 
@@ -191,7 +192,7 @@ DECLARE_DATA_TYPE( npy_cdouble_wrapper )
  /*
   * Order may be important here, list float before double
   */
- 
+
 %define INSTANTIATE_INDEX( f_name )
 %template(f_name)   f_name<int>;
 %enddef
@@ -218,7 +219,7 @@ DECLARE_DATA_TYPE( npy_cdouble_wrapper )
 %template(f_name)   f_name<int,float>;
 %template(f_name)   f_name<int,double>;
 %enddef
- 
+
 INSTANTIATE_INDEX(cljp_naive_splitting)
 INSTANTIATE_INDEX(naive_aggregation)
 INSTANTIATE_INDEX(standard_aggregation)

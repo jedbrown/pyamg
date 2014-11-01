@@ -1,4 +1,4 @@
-/* -*- C -*-  (not really, but good for syntax highlighting) */
+/* -*- C -*- */
 %{
 #ifndef SWIG_FILE_WITH_INIT
 #  define NO_IMPORT_ARRAY
@@ -6,12 +6,13 @@
 #include "stdio.h"
 #include <numpy/arrayobject.h>
 #include "complex_ops.h"
+#include "bool_ops.h"
 
 
 /* The following code originally appeared in
  * enthought/kiva/agg/src/numeric.i written by Eric Jones.  It was
  * translated from C++ to C by John Hunter.  Bill Spotz has modified
- * it slightly to fix some minor bugs, upgrade to NumPy (all
+ * it slightly to fix some minor bugs, upgrade to numpy (all
  * versions), add some comments and some functionality.
  */
 
@@ -26,40 +27,9 @@
 #define array_is_contiguous(a) (PyArray_ISCONTIGUOUS(a))
 #define array_is_native(a)     (PyArray_ISNOTSWAPPED(a))
 
-/* Support older NumPy data type names
-*/
-#if NDARRAY_VERSION < 0x01000000
-#define NPY_BOOL        PyArray_BOOL
-#define NPY_BYTE        PyArray_BYTE
-#define NPY_UBYTE       PyArray_UBYTE
-#define NPY_SHORT       PyArray_SHORT
-#define NPY_USHORT      PyArray_USHORT
-#define NPY_INT         PyArray_INT
-#define NPY_UINT        PyArray_UINT
-#define NPY_LONG        PyArray_LONG
-#define NPY_ULONG       PyArray_ULONG
-#define NPY_LONGLONG    PyArray_LONGLONG
-#define NPY_ULONGLONG   PyArray_ULONGLONG
-#define NPY_FLOAT       PyArray_FLOAT
-#define NPY_DOUBLE      PyArray_DOUBLE
-#define NPY_LONGDOUBLE  PyArray_LONGDOUBLE
-#define NPY_CFLOAT      PyArray_CFLOAT
-#define NPY_CDOUBLE     PyArray_CDOUBLE
-#define NPY_CLONGDOUBLE PyArray_CLONGDOUBLE
-#define NPY_OBJECT      PyArray_OBJECT
-#define NPY_STRING      PyArray_STRING
-#define NPY_UNICODE     PyArray_UNICODE
-#define NPY_VOID        PyArray_VOID
-#define NPY_NTYPES      PyArray_NTYPES
-#define NPY_NOTYPE      PyArray_NOTYPE
-#define NPY_CHAR        PyArray_CHAR
-#define NPY_USERDEF     PyArray_USERDEF
-#define npy_intp        intp
-#endif
-
 /* Given a PyObject, return a string describing its type.
  */
-const char* pytype_string(PyObject* py_obj) {
+static const char* pytype_string(PyObject* py_obj) {
   if (py_obj == NULL          ) return "C NULL value";
   if (py_obj == Py_None       ) return "Python None" ;
   if (PyCallable_Check(py_obj)) return "callable"    ;
@@ -73,12 +43,12 @@ const char* pytype_string(PyObject* py_obj) {
   if (PyModule_Check(  py_obj)) return "module"      ;
   if (PyInstance_Check(py_obj)) return "instance"    ;
 
-  return "unkown type";
+  return "unknown type";
 }
 
 /* Given a NumPy typecode, return a string describing the type.
  */
-const char* typecode_string(int typecode) {
+static const char* typecode_string(int typecode) {
   static const char* type_names[25] = {"bool", "byte", "unsigned byte",
 				 "short", "unsigned short", "int",
 				 "unsigned int", "long", "unsigned long",
@@ -91,11 +61,11 @@ const char* typecode_string(int typecode) {
   return typecode < 24 ? type_names[typecode] : type_names[24];
 }
 
-/* Make sure input has correct NumPy type.  Allow character and byte
+/* Make sure input has correct numpy type.  Allow character and byte
  * to match.  Also allow int and long to match.  This is deprecated.
  * You should use PyArray_EquivTypenums() instead.
  */
-int type_match(int actual_type, int desired_type) {
+static int type_match(int actual_type, int desired_type) {
   return PyArray_EquivTypenums(actual_type, desired_type);
 }
 
@@ -103,7 +73,7 @@ int type_match(int actual_type, int desired_type) {
  * legal.  If not, set the python error string appropriately and
  * return NULL.
  */
-PyArrayObject* obj_to_array_no_conversion(PyObject* input, int typecode) {
+static PyArrayObject* obj_to_array_no_conversion(PyObject* input, int typecode) {
   PyArrayObject* ary = NULL;
   if (is_array(input) && (typecode == NPY_NOTYPE ||
 			  PyArray_EquivTypenums(array_type(input), typecode))) {
@@ -133,7 +103,7 @@ PyArrayObject* obj_to_array_no_conversion(PyObject* input, int typecode) {
  * correct type.  On failure, the python error string will be set and
  * the routine returns NULL.
  */
-PyArrayObject* obj_to_array_allow_conversion(PyObject* input, int typecode,
+static PyArrayObject* obj_to_array_allow_conversion(PyObject* input, int typecode,
                                              int* is_new_object) {
   PyArrayObject* ary = NULL;
   PyObject* py_obj;
@@ -156,7 +126,7 @@ PyArrayObject* obj_to_array_allow_conversion(PyObject* input, int typecode,
  * not contiguous, create a new PyArrayObject using the original data,
  * flag it as a new object and return the pointer.
  */
-PyArrayObject* make_contiguous(PyArrayObject* ary, int* is_new_object,
+static PyArrayObject* make_contiguous(PyArrayObject* ary, int* is_new_object,
                                int min_dims, int max_dims) {
   PyArrayObject* result;
   if (array_is_contiguous(ary)) {
@@ -178,7 +148,7 @@ PyArrayObject* make_contiguous(PyArrayObject* ary, int* is_new_object,
  * PyArrayObject, a new one will be created and the new object flag
  * will be set.
  */
-PyArrayObject* obj_to_array_contiguous_allow_conversion(PyObject* input,
+static PyArrayObject* obj_to_array_contiguous_allow_conversion(PyObject* input,
                                                         int typecode,
                                                         int* is_new_object) {
   int is_new1 = 0;
@@ -200,7 +170,7 @@ PyArrayObject* obj_to_array_contiguous_allow_conversion(PyObject* input,
  * contiguous, return 1.  Otherwise, set the python error string and
  * return 0.
  */
-int require_contiguous(PyArrayObject* ary) {
+static int require_contiguous(PyArrayObject* ary) {
   int contiguous = 1;
   if (!array_is_contiguous(ary)) {
     PyErr_SetString(PyExc_TypeError,
@@ -210,11 +180,11 @@ int require_contiguous(PyArrayObject* ary) {
   return contiguous;
 }
 
-/* Require that a NumPy array is not byte-swapped.  If the array is
+/* Require that a numpy array is not byte-swapped.  If the array is
  * not byte-swapped, return 1.  Otherwise, set the python error string
  * and return 0.
  */
-int require_native(PyArrayObject* ary) {
+static int require_native(PyArrayObject* ary) {
   int native = 1;
   if (!array_is_native(ary)) {
     PyErr_SetString(PyExc_TypeError,
@@ -228,7 +198,7 @@ int require_native(PyArrayObject* ary) {
  * dimensions.  If the array has the specified number of dimensions,
  * return 1.  Otherwise, set the python error string and return 0.
  */
-int require_dimensions(PyArrayObject* ary, int exact_dimensions) {
+static int require_dimensions(PyArrayObject* ary, int exact_dimensions) {
   int success = 1;
   if (array_numdims(ary) != exact_dimensions) {
     PyErr_Format(PyExc_TypeError, 
@@ -244,7 +214,7 @@ int require_dimensions(PyArrayObject* ary, int exact_dimensions) {
  * of dimensions, return 1.  Otherwise, set the python error string
  * and return 0.
  */
-int require_dimensions_n(PyArrayObject* ary, int* exact_dimensions, int n) {
+static int require_dimensions_n(PyArrayObject* ary, int* exact_dimensions, int n) {
   int success = 0;
   int i;
   char dims_str[255] = "";
@@ -272,7 +242,7 @@ int require_dimensions_n(PyArrayObject* ary, int* exact_dimensions, int n) {
  * array has the specified shape, return 1.  Otherwise, set the python
  * error string and return 0.
  */
-int require_size(PyArrayObject* ary, npy_intp* size, int n) {
+static int require_size(PyArrayObject* ary, npy_intp* size, int n) {
   int i;
   int success = 1;
   int len;
@@ -322,7 +292,7 @@ int require_size(PyArrayObject* ary, npy_intp* size, int n) {
   @par Revision history:
   - 17.02.2005, c
 */
-PyObject *helper_appendToTuple( PyObject *where, PyObject *what ) {
+static PyObject *helper_appendToTuple( PyObject *where, PyObject *what ) {
   PyObject *o2, *o3;
 
   if ((!where) || (where == Py_None)) {
@@ -524,7 +494,9 @@ PyObject *helper_appendToTuple( PyObject *where, PyObject *what ) {
 %typemap( argout ) std::vector<ctype>* array_argout { 
   npy_intp length = ($1)->size(); 
   PyObject *obj = PyArray_SimpleNew(1, &length, ##atype); 
-  memcpy(PyArray_DATA(obj), &((*($1))[0]), sizeof(ctype)*length);
+  if (length > 0) {
+    memcpy(PyArray_DATA(obj), &((*($1))[0]), sizeof(ctype)*length);
+  }
   delete $1; 
   $result = helper_appendToTuple( $result, (PyObject *)obj ); 
 }; 
@@ -560,24 +532,27 @@ NPY_TYPECHECK(type, typecode)
 %enddef
 
 
-INSTANTIATE_TYPEMAPS(char,                    PyArray_CHAR       )
-INSTANTIATE_TYPEMAPS(unsigned char,           PyArray_UBYTE      )
-INSTANTIATE_TYPEMAPS(signed char,             PyArray_BYTE       )
-INSTANTIATE_TYPEMAPS(short,                   PyArray_SHORT      )
-INSTANTIATE_TYPEMAPS(unsigned short,          PyArray_USHORT     )
-INSTANTIATE_TYPEMAPS(int,                     PyArray_INT        )
-INSTANTIATE_TYPEMAPS(unsigned int,            PyArray_UINT       )
-INSTANTIATE_TYPEMAPS(long,                    PyArray_LONG       )
-INSTANTIATE_TYPEMAPS(long long,               PyArray_LONGLONG   )
-INSTANTIATE_TYPEMAPS(unsigned long long,      PyArray_ULONGLONG  )
-INSTANTIATE_TYPEMAPS(float,                   PyArray_FLOAT      )
-INSTANTIATE_TYPEMAPS(double,                  PyArray_DOUBLE     )
-INSTANTIATE_TYPEMAPS(long double,             PyArray_LONGDOUBLE )
-INSTANTIATE_TYPEMAPS(npy_cfloat_wrapper,      PyArray_CFLOAT     )
-INSTANTIATE_TYPEMAPS(npy_cdouble_wrapper,     PyArray_CDOUBLE    )
-INSTANTIATE_TYPEMAPS(npy_clongdouble_wrapper, PyArray_CLONGDOUBLE)
-INSTANTIATE_TYPEMAPS(PyObject,                PyArray_OBJECT     )
+INSTANTIATE_TYPEMAPS(npy_bool_wrapper,        NPY_BOOL       )
+INSTANTIATE_TYPEMAPS(char,                    NPY_CHAR       )
+INSTANTIATE_TYPEMAPS(unsigned char,           NPY_UBYTE      )
+INSTANTIATE_TYPEMAPS(signed char,             NPY_BYTE       )
+INSTANTIATE_TYPEMAPS(short,                   NPY_SHORT      )
+INSTANTIATE_TYPEMAPS(unsigned short,          NPY_USHORT     )
+INSTANTIATE_TYPEMAPS(int,                     NPY_INT        )
+INSTANTIATE_TYPEMAPS(unsigned int,            NPY_UINT       )
+INSTANTIATE_TYPEMAPS(long,                    NPY_LONG       )
+INSTANTIATE_TYPEMAPS(long long,               NPY_LONGLONG   )
+INSTANTIATE_TYPEMAPS(unsigned long long,      NPY_ULONGLONG  )
+INSTANTIATE_TYPEMAPS(float,                   NPY_FLOAT      )
+INSTANTIATE_TYPEMAPS(double,                  NPY_DOUBLE     )
+INSTANTIATE_TYPEMAPS(long double,             NPY_LONGDOUBLE )
+INSTANTIATE_TYPEMAPS(npy_cfloat_wrapper,      NPY_CFLOAT     )
+INSTANTIATE_TYPEMAPS(npy_cdouble_wrapper,     NPY_CDOUBLE    )
+INSTANTIATE_TYPEMAPS(npy_clongdouble_wrapper, NPY_CLONGDOUBLE)
+INSTANTIATE_TYPEMAPS(PyObject,                NPY_OBJECT     )
 
+INSTANTIATE_TYPEMAPS(npy_int32,               NPY_INT32      )
+INSTANTIATE_TYPEMAPS(npy_int64,               NPY_INT64      )
 
 
 #undef TYPEMAP_IN1
