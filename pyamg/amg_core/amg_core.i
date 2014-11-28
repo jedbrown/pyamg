@@ -7,9 +7,11 @@
 %{
 #include "py3k.h"
 #define SWIG_FILE_WITH_INIT
+#include "Python.h"
 #include "numpy/arrayobject.h"
-
 #include "complex_ops.h"
+#include "bool_ops.h"
+
 #include "ruge_stuben.h"
 #include "smoothed_aggregation.h"
 #include "relaxation.h"
