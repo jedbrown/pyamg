@@ -126,12 +126,12 @@ def change_smoothers(ml, presmoother, postsmoother):
     if isinstance(presmoother, str) or isinstance(presmoother, tuple) or (presmoother == None):
         presmoother = [presmoother]
     elif not isinstance(presmoother, list):
-        raise ValueError,'Unrecognized presmoother'
+        raise ValueError('Unrecognized presmoother')
 
     if isinstance(postsmoother, str) or isinstance(postsmoother, tuple) or (postsmoother == None):
         postsmoother = [postsmoother]
     elif not isinstance(postsmoother, list):
-        raise ValueError,'Unrecognized postsmoother'
+        raise ValueError('Unrecognized postsmoother')
 
     # set ml.levels[i].presmoother = presmoother[i]
     i = 0
@@ -271,19 +271,19 @@ def matrix_asformat(lvl, name, format, blocksize=None):
         pass
     elif eval(base_matrix).format == format and format != 'bsr':
         # is base_matrix already in the correct format?
-        exec desired_matrix +' = '+ base_matrix
+        exec(desired_matrix +' = '+ base_matrix)
     elif eval(base_matrix).format == format and format == 'bsr':
         # make sure blocksize is correct
         if eval(base_matrix).blocksize != blocksize:
-            exec desired_matrix +' = '+ base_matrix+'.to'+format+'(blocksize='+str(blocksize)+')'
+            exec(desired_matrix +' = '+ base_matrix+'.to'+format+'(blocksize='+str(blocksize)+')')
         else:
-            exec desired_matrix +' = '+ base_matrix
+            exec(desired_matrix +' = '+ base_matrix)
     elif format == 'bsr':
         # convert
-        exec desired_matrix +' = '+ base_matrix+'.to'+format+'(blocksize='+str(blocksize)+')'
+        exec(desired_matrix +' = '+ base_matrix+'.to'+format+'(blocksize='+str(blocksize)+')')
     else:
         # convert
-        exec desired_matrix + ' = lvl.' + name + '.to' + format + '()'
+        exec(desired_matrix + ' = lvl.' + name + '.to' + format + '()')
 
     return eval(desired_matrix)
 

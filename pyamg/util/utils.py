@@ -113,7 +113,7 @@ def diag_sparse(A):
         return A.diagonal()
     else:
         if(numpy.rank(A)!=1):
-            raise ValueError,'input diagonal array expected to be rank 1'
+            raise ValueError('input diagonal array expected to be rank 1')
         return csr_matrix((numpy.asarray(A),numpy.arange(len(A)),numpy.arange(len(A)+1)),(len(A),len(A)))
 
 def scale_rows(A,v,copy=True):
@@ -164,7 +164,7 @@ def scale_rows(A,v,copy=True):
     if isspmatrix_csr(A) or isspmatrix_bsr(A):
         M,N = A.shape
         if M != len(v):
-            raise ValueError,'scale vector has incompatible shape'
+            raise ValueError('scale vector has incompatible shape')
 
         if copy:
             A = A.copy()
@@ -238,7 +238,7 @@ def scale_columns(A,v,copy=True):
     if isspmatrix_csr(A) or isspmatrix_bsr(A):
         M,N = A.shape
         if N != len(v):
-            raise ValueError,'scale vector has incompatible shape'
+            raise ValueError('scale vector has incompatible shape')
 
         if copy:
             A = A.copy()
@@ -312,7 +312,7 @@ def symmetric_rescaling(A,copy=True):
     """
     if isspmatrix_csr(A) or isspmatrix_csc(A) or isspmatrix_bsr(A):
         if A.shape[0] != A.shape[1]:
-            raise ValueError,'expected square matrix'
+            raise ValueError('expected square matrix')
 
         D = diag_sparse(A)
         mask = (D != 0)
@@ -1235,9 +1235,9 @@ def filter_operator(A, C, B, Bf, BtBinv=None):
     # First preprocess the parameters
     Nfine = A.shape[0]
     if A.shape[0] != C.shape[0]:
-        raise ValueError, 'A and C must be the same size'
+        raise ValueError( 'A and C must be the same size')
     if A.shape[1] != C.shape[1]:
-        raise ValueError, 'A and C must be the same size'
+        raise ValueError( 'A and C must be the same size')
 
     if isspmatrix_bsr(C):
         isBSR = True
@@ -1245,31 +1245,31 @@ def filter_operator(A, C, B, Bf, BtBinv=None):
         RowsPerBlock = C.blocksize[0]
         Nnodes = Nfine/RowsPerBlock
         if not isspmatrix_bsr(A):
-            raise ValueError, 'A and C must either both be CSR or BSR'
+            raise ValueError( 'A and C must either both be CSR or BSR')
         elif (ColsPerBlock != A.blocksize[1]) or (RowsPerBlock != A.blocksize[0]):
-            raise ValueError, 'A and C must have same BSR blocksizes'
+            raise ValueError( 'A and C must have same BSR blocksizes')
     elif isspmatrix_csr(C):
         isBSR = False
         ColsPerBlock = 1
         RowsPerBlock = 1
         Nnodes = Nfine/RowsPerBlock
         if not isspmatrix_csr(A):
-            raise ValueError, 'A and C must either both be CSR or BSR'
+            raise ValueError( 'A and C must either both be CSR or BSR')
     else:
-        raise ValueError, 'A and C must either both be CSR or BSR'
+        raise ValueError( 'A and C must either both be CSR or BSR')
 
     if len(Bf.shape) == 1:
         Bf = Bf.reshape(-1,1)
     if Bf.shape[0] != A.shape[0]:
-        raise ValueError, 'A and Bf must have the same first dimension'
+        raise ValueError( 'A and Bf must have the same first dimension')
 
     if len(B.shape) == 1:
         B = B.reshape(-1,1)
     if B.shape[0] != A.shape[1]:
-        raise ValueError, 'A and B must have matching dimensions such that A*B is computable'
+        raise ValueError('A and B must have matching dimensions such that A*B is computable')
 
     if B.shape[1] != Bf.shape[1]:
-        raise ValueError, 'B and Bf must have the same second dimension'
+        raise ValueError('B and Bf must have the same second dimension')
     else:
         NullDim = B.shape[1]
 
@@ -1280,7 +1280,7 @@ def filter_operator(A, C, B, Bf, BtBinv=None):
     if Bf.dtype == int:
         Bf.data = numpy.array(Bf.data, dtype=float)
     if (A.dtype != B.dtype) or (A.dtype != Bf.dtype):
-        raise TypeError, 'A, B and Bf must of the same dtype'
+        raise TypeError('A, B and Bf must of the same dtype')
 
     ##
     # First, preprocess some values for filtering.  Construct array of

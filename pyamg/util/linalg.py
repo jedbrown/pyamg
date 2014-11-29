@@ -346,13 +346,13 @@ def approximate_spectral_radius(A, tol=0.01, maxiter=15, restart=5, symmetric=No
         symmetric = False
 
         if maxiter < 1:
-            raise ValueError,'expected maxiter > 0'
+            raise ValueError('expected maxiter > 0')
         if restart < 0:
-            raise ValueError,'expected restart >= 0'
+            raise ValueError('expected restart >= 0')
         if A.dtype == int:
-            raise ValueError,'expected A to be float (complex or real)'
+            raise ValueError('expected A to be float (complex or real)')
         if A.shape[0] != A.shape[1]:
-            raise ValueError,'expected square A'
+            raise ValueError('expected square A')
 
         if initial_guess == None:
             v0  = scipy.rand(A.shape[1],1)
@@ -360,9 +360,9 @@ def approximate_spectral_radius(A, tol=0.01, maxiter=15, restart=5, symmetric=No
                 v0 = v0 + 1.0j * scipy.rand(A.shape[1],1)
         else:
             if initial_guess.shape[0] != A.shape[0]:
-                raise ValueError,'initial_guess and A must have same shape'
+                raise ValueError('initial_guess and A must have same shape')
             if (len(initial_guess.shape) > 1) and (initial_guess.shape[1] > 1):
-                raise ValueError,'initial_guess must be an (n,1) or (n,) vector'
+                raise ValueError('initial_guess must be an (n,1) or (n,) vector')
             v0 = initial_guess.reshape(-1,1)
             v0 = numpy.array(v0, dtype=A.dtype)
 
@@ -471,7 +471,7 @@ def cond(A):
     """
 
     if A.shape[0] != A.shape[1]:
-        raise ValueError,'expected square matrix'
+        raise ValueError('expected square matrix')
 
     if sparse.isspmatrix(A):
         A = A.todense()
