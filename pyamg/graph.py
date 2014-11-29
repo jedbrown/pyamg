@@ -6,7 +6,7 @@ import numpy
 import scipy
 from scipy import sparse
 
-import amg_core
+import .amg_core
 
 __all__ = ['maximal_independent_set', 'vertex_coloring', 'bellman_ford',
            'lloyd_cluster', 'connected_components']

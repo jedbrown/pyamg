@@ -14,7 +14,7 @@ import warnings
 import numpy
 from scipy.sparse import csr_matrix, coo_matrix, csc_matrix, triu
 from pyamg.graph import vertex_coloring
-from vtk_writer import write_basic_mesh, write_vtu
+from .vtk_writer import write_basic_mesh, write_vtu
 
 __all__ = ['vis_splitting', 'vis_aggregate_groups']
 
@@ -30,7 +30,7 @@ def vis_aggregate_groups(Verts, E2V, Agg, mesh_type, output='vtk', fname='output
     E2V : {array}
         element index array (Nel x Nelnodes)
     Agg : {csr_matrix}
-        sparse matrix for the aggregate-vertex relationship (N x Nagg)  
+        sparse matrix for the aggregate-vertex relationship (N x Nagg)
     mesh_type : {string}
         type of elements: vertex, tri, quad, tet, hex (all 3d)
     fname : {string, file object}
@@ -42,7 +42,7 @@ def vis_aggregate_groups(Verts, E2V, Agg, mesh_type, output='vtk', fname='output
     -------
         - Writes data to .vtu file for use in paraview (xml 0.1 format) or
           displays to screen using matplotlib
-    
+
     Notes
     -----
         - Works for both 2d and 3d elements.  Element groupings are colored
@@ -112,7 +112,7 @@ def vis_aggregate_groups(Verts, E2V, Agg, mesh_type, output='vtk', fname='output
     #####
     # 3 #
     # find edges of elements in the same aggregate (brute force)
- 
+
     # construct vertex to vertex graph
     col = E2V.ravel()
     row = numpy.kron(numpy.arange(0,E2V.shape[0]),numpy.ones((E2V.shape[1],),dtype=int))
@@ -166,17 +166,17 @@ def vis_splitting(Verts, splitting, output='vtk', fname='output.vtu'):
     Returns
     -------
         - Displays in screen or writes data to .vtu file for use in paraview (xml 0.1 format)
-    
+
     Notes
     -----
-    D : 
+    D :
         dimension of coordinate space
-    N : 
+    N :
         # of vertices in the mesh represented in Verts
-    Ndof : 
+    Ndof :
         # of dof (= ldof * N)
 
-        - simply color different points with different colors.  This works 
+        - simply color different points with different colors.  This works
           best with classical AMG.
 
         - writes a file (or opens a window) for each dof
@@ -227,7 +227,7 @@ def vis_splitting(Verts, splitting, output='vtk', fname='output.vtu'):
     new_fname = fname
     for d in range(0,Ndof):
         # for each variables, write a file or open a figure
-        
+
         if Ndof>1:
             new_fname = fname1 + '_%d.'%(d+1) + fname2
 

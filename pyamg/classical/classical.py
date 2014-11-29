@@ -12,8 +12,8 @@ from pyamg.strength import classical_strength_of_connection, \
     symmetric_strength_of_connection, \
     evolution_strength_of_connection
 
-from interpolate import direct_interpolation
-import split
+from .interpolate import direct_interpolation
+import .split
 
 __all__ = ['ruge_stuben_solver']
 

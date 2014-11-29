@@ -7,7 +7,7 @@ __all__ = ['poisson', 'gauge_laplacian']
 import numpy as np
 import scipy as sp
 
-from stencil import stencil_grid
+from .stencil import stencil_grid
 
 
 def poisson(grid, spacing=None, dtype=float, format=None):
