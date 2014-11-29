@@ -12,7 +12,7 @@ import subprocess
 
 ver = sys.version_info[:2]
 if ver < (2, 6) or ((3, 0) <= ver and ver < (3, 2)):
-    raise RuntimeError("Python version 2.6, 2.7 required.")
+    raise RuntimeError("Python version 2.6, 2.7, or >3.2 required.")
 
 if sys.version_info[0] >= 3:
     import builtins
@@ -33,6 +33,9 @@ Natural Language :: English
 Operating System :: OS Independent
 Programming Language :: C++
 Programming Language :: Python
+Programming Language :: Python :: 2
+Programming Language :: Python :: 2.6
+Programming Language :: Python :: 2.7
 Topic :: Education
 Topic :: Scientific/Engineering
 Topic :: Scientific/Engineering :: Mathematics

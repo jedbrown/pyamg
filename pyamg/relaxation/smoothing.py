@@ -141,7 +141,7 @@ def change_smoothers(ml, presmoother, postsmoother):
         # get function handle
         try:
             setup_presmoother = eval('setup_' + str(fn))
-        except NameError, ne:
+        except NameError as ne:
             raise NameError("invalid presmoother method: ", fn)
         ml.levels[i].presmoother = setup_presmoother(ml.levels[i], **kwargs)
 
@@ -158,7 +158,7 @@ def change_smoothers(ml, presmoother, postsmoother):
         # get function handle
         try:
             setup_postsmoother = eval('setup_' + str(fn))
-        except NameError, ne:
+        except NameError as ne:
             raise NameError("invalid postsmoother method: ", fn)
         ml.levels[i].postsmoother = setup_postsmoother(ml.levels[i], **kwargs)
 

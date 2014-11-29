@@ -6,7 +6,7 @@ from pyamg.testing import *
 import tempfile
 
 import xml.parsers.expat
-from numpy import array, uint32
+
 
 from pyamg.vis import write_vtu
 
@@ -30,7 +30,7 @@ class TestWriteVtu(TestCase):
         mesh.pdata = None
         mesh.cdata = None
         cases.append(mesh)
-        
+
         # 2 triangles
         mesh.Verts = array([[0.0,0.0],
                            [1.0,0.0],
@@ -76,5 +76,5 @@ class TestWriteVtu(TestCase):
             try:
                 parser = xml.parsers.expat.ParserCreate()
                 parser.ParseFile(open(mesh.file_name, 'r'))
-            except Exception, ex:
+            except Exception as ex:
                 assert False, 'problem: %s' % (ex)
