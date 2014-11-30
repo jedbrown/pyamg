@@ -1,3 +1,6 @@
+from __future__ import division
+from __future__ import print_function
+
 """Aggregation methods"""
 
 __docformat__ = "restructuredtext en"

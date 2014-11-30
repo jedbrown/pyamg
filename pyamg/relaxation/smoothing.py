@@ -3,7 +3,7 @@
 
 import numpy
 import scipy
-import .relaxation
+from pyamg.relaxation import *
 from .chebyshev import chebyshev_polynomial_coefficients
 from pyamg.util.utils import scale_rows, get_block_diag, UnAmal, get_diagonal
 from pyamg.util.linalg import approximate_spectral_radius
