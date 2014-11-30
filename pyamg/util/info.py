@@ -7,5 +7,8 @@ BSR_utils.py provides utility functions for accessing and writing individual
 rows of BSR matrices
 
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 postpone_import = 1

@@ -1,5 +1,9 @@
 """Utility Functions for reading and writing individual rows
    in BSR matrices"""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
 
 __docformat__ = "restructuredtext en"
 

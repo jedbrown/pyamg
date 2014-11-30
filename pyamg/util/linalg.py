@@ -1,4 +1,8 @@
 ''' Linear Algebra Helper Routines '''
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
 
 __docformat__ = "restructuredtext en"
 
@@ -625,7 +629,7 @@ def pinv_array(a, cond=None):
 
         ##
         # Invert each block of a
-        for kk in xrange(n):
+        for kk in range(n):
             gelssoutput = gelss(a[kk], RHS, cond=cond, lwork=lwork, overwrite_a=True, overwrite_b=False)
 
             a[kk] = gelssoutput[1]

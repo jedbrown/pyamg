@@ -1,4 +1,10 @@
 """General utility functions for pyamg"""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import zip
+from builtins import str
+from builtins import range
 
 __docformat__ = "restructuredtext en"
 
@@ -1526,7 +1532,7 @@ def get_Cpt_params(A, Cnodes, AggOp, T):
         blocksize = A.blocksize[0]
         Cpts = numpy.repeat(blocksize*Cnodes, blocksize)
         for k in range(1, blocksize):
-            Cpts[range(k, Cpts.shape[0], blocksize)] += k
+            Cpts[list(range(k, Cpts.shape[0], blocksize))] += k
     else:
         blocksize = 1
         Cpts = Cnodes
