@@ -1,3 +1,8 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import zip
+from builtins import range
 from pyamg.testing import *
 
 import numpy
@@ -543,7 +548,7 @@ def reference_evolution_strength_of_connection(A, B, epsilon=4.0, k=2, proj_type
     #   all entries in Atilde that aren't from your PDE.
     if numPDEs > 1:
         row_length = diff(mask.indptr)
-        my_pde = mod(range(dimen), numPDEs)
+        my_pde = mod(list(range(dimen)), numPDEs)
         my_pde = repeat(my_pde, row_length)
         mask.data[ mod(mask.indices, numPDEs) != my_pde ] = 0.0
         del row_length, my_pde

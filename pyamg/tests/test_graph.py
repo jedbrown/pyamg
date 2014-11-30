@@ -1,3 +1,8 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import zip
+from builtins import range
 from pyamg.testing import *
 
 import numpy
@@ -315,7 +320,7 @@ def test_connected_components():
                 D[i] = set()
             for n,i in enumerate(arr):
                 D[i].add(n)
-            return set([frozenset(s) for s in D.values()])
+            return set([frozenset(s) for s in list(D.values())])
         
         result = array_to_set_of_sets(result)
         expected = reference_connected_components(G)
@@ -395,7 +400,7 @@ def test_complex_connected_components():
                 D[i] = set()
             for n,i in enumerate(arr):
                 D[i].add(n)
-            return set([frozenset(s) for s in D.values()])
+            return set([frozenset(s) for s in list(D.values())])
         
         result = array_to_set_of_sets(result)
         expected = reference_connected_components(G)
