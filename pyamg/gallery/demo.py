@@ -1,5 +1,8 @@
 """Basic PyAMG demo showing AMG standalone convergence versus preconditioned CG
 with AMG"""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 __docformat__ = "restructuredtext en"
 __all__ = ['demo']

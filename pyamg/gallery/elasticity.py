@@ -1,5 +1,10 @@
 """Constructs linear elasticity problems for first-order elements in 2D and 3D
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
 
 __docformat__ = "restructuredtext en"
 
@@ -283,7 +288,7 @@ def linear_elasticity_p1(vertices, elements, E=1e5, nu=0.3, format=None):
 
     data = empty((NE, D*(D+1), D*(D+1)), dtype=float)
 
-    for i in xrange(NE):
+    for i in range(NE):
         element_indices = elements[i, :]
         element_vertices = vertices[element_indices, :]
 
