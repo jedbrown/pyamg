@@ -2,6 +2,9 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from builtins import object
 
 __docformat__ = "restructuredtext en"
 
@@ -45,7 +48,7 @@ class multilevel_solver(object):
         Iteratively solves a linear system for the right hand side.
     """
 
-    class level:
+    class level(object):
         """Stores one level of the multigrid hierarchy
 
         All level objects will have an 'A' attribute referencing the matrix
@@ -692,7 +695,7 @@ def coarse_grid_solver(solver):
     else:
         raise ValueError('unknown solver: %s' % solver)
 
-    class generic_solver:
+    class generic_solver(object):
         def __call__(self, A, b):
             # make sure x is same dimensions and type as b
             b = np.asanyarray(b)

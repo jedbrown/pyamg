@@ -12,6 +12,8 @@ Requirements for the strength matrix C are:
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+from builtins import str
+from builtins import range
 
 __docformat__ = "restructuredtext en"
 
@@ -607,7 +609,7 @@ def evolution_strength_of_connection(A, B='ones', epsilon=4.0, k=2,
     # Restrict to same PDE
     if numPDEs > 1:
         row_length = np.diff(mask.indptr)
-        my_pde = np.mod(range(dimen), numPDEs)
+        my_pde = np.mod(list(range(dimen)), numPDEs)
         my_pde = np.repeat(my_pde, row_length)
         mask.data[np.mod(mask.indices, numPDEs) != my_pde] = 0.0
         del row_length, my_pde
@@ -743,7 +745,7 @@ def evolution_strength_of_connection(A, B='ones', epsilon=4.0, k=2,
         # multiply of each column of B with each other column.  We also scale
         # by 2.0 to account for BDB's eventual use in a constrained
         # minimization problem
-        BDBCols = int(np.sum(range(NullDim + 1)))
+        BDBCols = int(np.sum(list(range(NullDim + 1))))
         BDB = np.zeros((dimen, BDBCols), dtype=A.dtype)
         counter = 0
         for i in range(NullDim):
