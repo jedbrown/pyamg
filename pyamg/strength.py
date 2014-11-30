@@ -9,6 +9,9 @@ Requirements for the strength matrix C are:
        row block size of m, then C is (n/m) x (n/m)
 
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 __docformat__ = "restructuredtext en"
 
