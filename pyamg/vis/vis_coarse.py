@@ -7,6 +7,10 @@ vis_splitting:        visualize C/F splittings through vertex elements
 vis_aggregate_groups: visualize aggregation through groupins of edges, elements
 
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
 
 __docformat__ = "restructuredtext en"
 

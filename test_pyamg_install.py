@@ -7,6 +7,7 @@ Can be expand tof more verbose testing and coverage.
 
 See NumPy/SciPy examples.
 """
+from __future__ import print_function
 import sys
 
 sys.path.pop(0)

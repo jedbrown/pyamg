@@ -5,6 +5,9 @@ PyAMG is a library of Algebraic Multigrid (AMG) solvers
 with a convenient Python interface.
 
 """
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 
 import os
 import sys
@@ -17,7 +20,7 @@ if ver < (2, 6) or ((3, 0) <= ver and ver < (3, 2)):
 if sys.version_info[0] >= 3:
     import builtins
 else:
-    import __builtin__ as builtins
+    import builtins as builtins
 
 DOCLINES = __doc__.split('\n')
 

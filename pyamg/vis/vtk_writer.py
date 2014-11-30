@@ -7,6 +7,11 @@ This will use the XML VTK format for unstructured meshes, .vtu
 
 See here for a guide:  http://www.vtk.org/pdf/file-formats.pdf
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
 
 __docformat__ = "restructuredtext en"
 
@@ -135,7 +140,7 @@ def write_vtu(Verts, Cells, pdata=None, pvdata=None, cdata=None, cvdata=None, fn
     # keys must ve valid (integer and not "None" in vtk_cell_info)
     # Cell data can't be empty for a non empty key
     for key in Cells:
-        if ((type(key) != int) or (key not in range(1,15))):
+        if ((type(key) != int) or (key not in list(range(1,15)))):
             raise ValueError('cell array must have positive integer keys in [1,14]')
         if (vtk_cell_info[key] == None) and (Cells[key] != None):
             # Poly data
