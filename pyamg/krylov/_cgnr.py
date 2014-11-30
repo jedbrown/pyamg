@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
 from numpy import inner, ceil, asmatrix, mod
 from scipy.sparse import isspmatrix
 from scipy.sparse.sputils import upcast

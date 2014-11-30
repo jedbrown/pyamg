@@ -1,3 +1,6 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 from numpy import array, inner, ravel
 from scipy.sparse.linalg.isolve.utils import make_system
 from pyamg.util.linalg import norm
