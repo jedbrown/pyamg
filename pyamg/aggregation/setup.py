@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 def configuration(parent_package='', top_path=None):
     import numpy
     from numpy.distutils.misc_util import Configuration
