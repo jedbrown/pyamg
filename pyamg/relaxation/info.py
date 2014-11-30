@@ -28,6 +28,9 @@ PyAMG implements relaxation methods of the following varieties:
 Refer to the docstrings of the individual methods for additional information.
 
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 __docformat__ = "restructuredtext en"
 #TODO: explain separation of basic methods from interface methods.

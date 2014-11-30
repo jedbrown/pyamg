@@ -1,5 +1,10 @@
 """Method to create pre- and post-smoothers on the levels of a multilevel_solver
 """
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
 
 import numpy
 import scipy
@@ -358,7 +363,7 @@ def schwarz_parameters(A, subdomain=None, subdomain_ptr=None,
         ##
         # Invert each block column
         my_pinv, = la.get_lapack_funcs(['gelss'], (numpy.ones((1,), dtype=A.dtype)) )
-        for i in xrange(subdomain_ptr.shape[0]-1):
+        for i in range(subdomain_ptr.shape[0]-1):
             m = blocksize[i]
             rhs = scipy.eye(m,m, dtype=A.dtype)
             gelssoutput = my_pinv(inv_subblock[inv_subblock_ptr[i]:inv_subblock_ptr[i+1]].reshape(m,m),
