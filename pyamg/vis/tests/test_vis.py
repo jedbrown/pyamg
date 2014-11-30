@@ -1,5 +1,8 @@
 """ Try creating a point and primal aggregate view for a C/F splitting and
 simple aggregation, respectively."""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
 
 from pyamg.testing import *
 

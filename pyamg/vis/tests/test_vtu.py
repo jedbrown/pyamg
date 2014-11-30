@@ -1,5 +1,9 @@
 """ Test 1, 2, 8 element meshes writing the vtu file.  Validate as well-formed
 xml."""
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import object
 
 from pyamg.testing import *
 
@@ -13,7 +17,7 @@ from pyamg.vis import write_vtu
 class TestWriteVtu(TestCase):
     def setUp(self):
         cases = []
-        class mesh:
+        class mesh(object):
             file_name = tempfile.mktemp()
             Verts  = None
             E2V   = None

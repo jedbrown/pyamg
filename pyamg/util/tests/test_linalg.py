@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
 from pyamg.testing import *
 
 from numpy import matrix, array, diag, zeros, sqrt, abs, ravel, zeros_like, arange, dot

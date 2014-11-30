@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
 from pyamg.testing import *
 
 import numpy
@@ -666,16 +670,16 @@ class TestRelaxation(TestCase):
                           for i in range(len(subdomains)) ]    
             
             if sweep == 'forward':
-                indices = range(len(subdomains))
+                indices = list(range(len(subdomains)))
             elif sweep == 'backward':
-                indices = range(len(subdomains)-1,-1,-1)
+                indices = list(range(len(subdomains)-1,-1,-1))
             elif sweep == 'symmetric':
-                indices = range(len(subdomains))
-                indices.extend( range(len(subdomains)-1,-1,-1) )
+                indices = list(range(len(subdomains)))
+                indices.extend( list(range(len(subdomains)-1,-1,-1)) )
 
             ##
             # Multiplicative Schwarz iterations
-            for j in xrange(iterations):
+            for j in range(iterations):
                 for i in indices:
                     x[subdomains[i]] = scipy.dot(subblocks[i], (b[subdomains[i]] - A[subdomains[i],:]*x)) + \
                                        x[subdomains[i]]
@@ -861,8 +865,8 @@ class TestComplexRelaxation(TestCase):
                           for i in range(len(subdomains)) ]    
             ##
             # Multiplicative Schwarz iterations
-            for j in xrange(iterations):
-                for i in xrange(len(subdomains)):
+            for j in range(iterations):
+                for i in range(len(subdomains)):
                     x[subdomains[i]] = scipy.dot(subblocks[i], (b[subdomains[i]] - A[subdomains[i],:]*x)) + \
                                        x[subdomains[i]]
             return x

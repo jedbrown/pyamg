@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import division
+from __future__ import absolute_import
+from builtins import zip
 from pyamg.testing import *
 from pyamg.krylov import *
 from pyamg.krylov._gmres_householder import gmres_householder
