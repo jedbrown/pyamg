@@ -44,7 +44,7 @@ class TestStrengthOfConnection(TestCase):
             for theta in [ 0.0, 0.05, 0.25, 0.50, 0.90 ]:
                 result   = classical_strength_of_connection(A, theta)
                 expected = reference_classical_strength_of_connection(A, theta)
-                
+
                 assert_equal( result.nnz, expected.nnz )
                 assert_array_almost_equal( result.todense(), expected.todense() )
 
@@ -92,10 +92,10 @@ class TestStrengthOfConnection(TestCase):
         B = csr_matrix(mat([[1.0]]))
         A2 = csr_matrix(mat([[0.]]))
         mask = csr_matrix(mat([[1.]]))
-        cases.append( (A,A,mask) ) 
-        cases.append( (A,B,mask) ) 
-        cases.append( (A,A2,mask) ) 
-        cases.append( (A2,A2,mask) ) 
+        cases.append( (A,A,mask) )
+        cases.append( (A,B,mask) )
+        cases.append( (A,A2,mask) )
+        cases.append( (A2,A2,mask) )
 
         # 2x2 tests
         A = csr_matrix(mat([[1.,2.],[2.,4.]]))
@@ -103,22 +103,22 @@ class TestStrengthOfConnection(TestCase):
         A2 = csr_matrix(mat([[1.3,0.],[0.,4.]]))
         B2 = csr_matrix(mat([[1.3,0.],[2.,4.]]))
         mask = csr_matrix( (ones(4),(array([0,0,1,1]),array([0,1,0,1]))), shape=(2,2) )
-        cases.append( (A,A,mask) ) 
-        cases.append( (A,B,mask) ) 
-        cases.append( (A2,A2,mask) ) 
-        cases.append( (A2,B2,mask) ) 
+        cases.append( (A,A,mask) )
+        cases.append( (A,B,mask) )
+        cases.append( (A2,A2,mask) )
+        cases.append( (A2,B2,mask) )
 
         mask = csr_matrix( (ones(3),(array([0,0,1]),array([0,1,1]))), shape=(2,2) )
-        cases.append( (A,A,mask) ) 
-        cases.append( (A,B,mask) ) 
-        cases.append( (A2,A2,mask) ) 
-        cases.append( (A2,B2,mask) ) 
+        cases.append( (A,A,mask) )
+        cases.append( (A,B,mask) )
+        cases.append( (A2,A2,mask) )
+        cases.append( (A2,B2,mask) )
 
         mask = csr_matrix( (ones(2),(array([0,1]),array([0,0]))), shape=(2,2) )
-        cases.append( (A,A,mask) ) 
-        cases.append( (A,B,mask) ) 
-        cases.append( (A2,A2,mask) ) 
-        cases.append( (A2,B2,mask) ) 
+        cases.append( (A,A,mask) )
+        cases.append( (A,B,mask) )
+        cases.append( (A2,A2,mask) )
+        cases.append( (A2,B2,mask) )
 
         # 5x5 tests
         A = mat([[  0. ,  16.9,   6.4,   0.0,   5.8],
@@ -149,10 +149,10 @@ class TestStrengthOfConnection(TestCase):
         cases.append( (A,C,mask) )
         cases.append( (C,A,mask) )
 
-        mask.data[1] = 0.0        
-        mask.data[5] = 0.0        
-        mask.data[9] = 0.0        
-        mask.data[13] = 0.0        
+        mask.data[1] = 0.0
+        mask.data[5] = 0.0
+        mask.data[9] = 0.0
+        mask.data[13] = 0.0
         mask.eliminate_zeros()
         cases.append( (A,A,mask) )
         cases.append( (C,C,mask) )
@@ -207,7 +207,7 @@ class TestStrengthOfConnection(TestCase):
             B.sort_indices()
             mask.sort_indices()
             result = mask.copy()
-            incomplete_mat_mult_csr(A.indptr,A.indices,A.data, B.indptr,B.indices,B.data, 
+            incomplete_mat_mult_csr(A.indptr,A.indices,A.data, B.indptr,B.indices,B.data,
                               result.indptr,result.indices,result.data, A.shape[0])
             result.eliminate_zeros()
             exact = (A*B).multiply(mask)
@@ -233,7 +233,7 @@ class TestStrengthOfConnection(TestCase):
             A = spdiags([-ones(N*N), -0.001*ones(N*N), 2.002*ones(N*N),-0.001*ones(N*N),-ones(N*N)],[-N, -1, 0, 1, N], N*N, N*N, format='csr')
             B = ones((A.shape[0],1))
             cases.append({'A' : A.copy(), 'B' : B.copy(), 'epsilon' : 4.0, 'k' : 2, 'proj' : 'l2'})
-            
+
         # Ensure that isotropic elasticity results in an isotropic stencil
         for N in [3,6,7]:
             (A,B) = linear_elasticity( (N,N), format='bsr')
@@ -250,8 +250,8 @@ class TestStrengthOfConnection(TestCase):
         B = arange(1, 2*A.shape[0]+1, dtype=float).reshape(-1,2)
         cases.append({'A' : A.copy(), 'B' : B.copy(), 'epsilon' : 4.0, 'k' : 2, 'proj' : 'l2'})
         cases.append({'A' : Absr.copy(), 'B' : B.copy(), 'epsilon' : 4.0, 'k' : 2, 'proj' : 'l2'})
-       
-        # Zero row and column 
+
+        # Zero row and column
         A.data[A.indptr[4]:A.indptr[5]] = 0.0
         A = A.tocsc()
         A.data[A.indptr[4]:A.indptr[5]] = 0.0
@@ -259,7 +259,7 @@ class TestStrengthOfConnection(TestCase):
         cases.append({'A' : A.copy(), 'B' : B.copy(), 'epsilon' : 4.0, 'k' : 2, 'proj' : 'l2'})
         Absr = A.tobsr(blocksize=(5,5))
         cases.append({'A' : Absr.copy(), 'B' : B.copy(), 'epsilon' : 4.0, 'k' : 2, 'proj' : 'l2'})
-        
+
         for ca in cases:
             scipy.random.seed(0)  #make results deterministic
             result = evolution_strength_of_connection(ca['A'], ca['B'], epsilon=ca['epsilon'], \
@@ -313,7 +313,7 @@ class TestComplexStrengthOfConnection(TestCase):
             for theta in [ 0.0, 0.05, 0.25, 0.50, 0.90 ]:
                 result   = classical_strength_of_connection(A, theta)
                 expected = reference_classical_strength_of_connection(A, theta)
-                
+
                 assert_equal( result.nnz, expected.nnz )
                 assert_array_almost_equal( result.todense(), expected.todense() )
 
@@ -327,7 +327,7 @@ class TestComplexStrengthOfConnection(TestCase):
                 assert_array_almost_equal( result.todense(), expected.todense() )
 
     def test_evolution_strength_of_connection(self):
-        cases = [] 
+        cases = []
 
         # Single near nullspace candidate
         stencil = [[0.0, -1.0, 0.0],[-0.001, 2.002, -0.001],[0.0, -1.0, 0.0]]
@@ -345,7 +345,7 @@ class TestComplexStrengthOfConnection(TestCase):
         cases.append({'A' : A.copy(), 'B' : B.copy(), 'epsilon' : 4.0, 'k' : 2, 'proj' : 'l2'})
         Absr = A.tobsr(blocksize=(2,2))
         cases.append({'A' : Absr.copy(), 'B' : B.copy(), 'epsilon' : 4.0, 'k' : 2, 'proj' : 'l2'})
-        
+
         for ca in cases:
             scipy.random.seed(0)  #make results deterministic
             result = evolution_strength_of_connection(ca['A'], ca['B'], epsilon=ca['epsilon'], \
@@ -366,7 +366,7 @@ class TestComplexStrengthOfConnection(TestCase):
         scipy.random.seed(0)  #make results deterministic
         result_scaled = evolution_strength_of_connection(D*A*D, Dinv*B, epsilon=4.0, k=2, proj_type="D_A", symmetrize_measure=False)
         assert_array_almost_equal( result_scaled.todense(), result_unscaled.todense(), decimal=2 )
-        
+
         # Test that the l2 and D_A are the same for the 1 candidate case
         scipy.random.seed(0)  #make results deterministic
         resultDA = evolution_strength_of_connection(D*A*D, Dinv*B, epsilon=4.0, \
@@ -396,15 +396,15 @@ class TestComplexStrengthOfConnection(TestCase):
 ##   reference implementations for unittests  ##
 ################################################
 def reference_classical_strength_of_connection(A, theta):
-    # This complex extension of the classic Ruge-Stuben 
+    # This complex extension of the classic Ruge-Stuben
     # strength-of-connection has some theoretical justification in
-    # "AMG Solvers for Complex-Valued Matrices", Scott MacClachlan, 
+    # "AMG Solvers for Complex-Valued Matrices", Scott MacClachlan,
     # Cornelis Oosterlee
 
-    # Connection is strong if, 
+    # Connection is strong if,
     #   | a_ij| >= theta * max_{k != i} |a_ik|
     S = coo_matrix(A)
-    
+
     # remove diagonals
     mask = S.row != S.col
     S.row  = S.row[mask]
@@ -422,13 +422,13 @@ def reference_classical_strength_of_connection(A, theta):
     S.row  = S.row[mask]
     S.col  = S.col[mask]
     S.data = S.data[mask]
-    
+
     # Add back diagonal
     D = scipy.sparse.eye(S.shape[0], S.shape[0], format="csr", dtype=A.dtype)
     D.data[:] = csr_matrix(A).diagonal()
     S = S.tocsr() + D
-    
-    # Strength represents "distance", so take the magnitude 
+
+    # Strength represents "distance", so take the magnitude
     S.data = abs(S.data)
 
     # Scale S by the largest magnitude entry in each row
@@ -438,23 +438,23 @@ def reference_classical_strength_of_connection(A, theta):
             val = numpy.abs(S.data[j])
             if val > largest_row_entry[i]:
                 largest_row_entry[i] = val
-    
-    largest_row_entry[ largest_row_entry != 0 ] = 1.0 / largest_row_entry[ largest_row_entry != 0 ] 
-    S = S.tocsr()   
+
+    largest_row_entry[ largest_row_entry != 0 ] = 1.0 / largest_row_entry[ largest_row_entry != 0 ]
+    S = S.tocsr()
     S = scale_rows(S, largest_row_entry, copy=True)
 
     return S
-    
+
 
 def reference_symmetric_strength_of_connection(A, theta):
-    # This is just a direct complex extension of the classic 
-    # SA strength-of-connection measure.  The extension continues 
-    # to compare magnitudes. This should reduce to the classic 
+    # This is just a direct complex extension of the classic
+    # SA strength-of-connection measure.  The extension continues
+    # to compare magnitudes. This should reduce to the classic
     # measure if A is all real.
 
     #if theta == 0:
     #    return A
-    
+
     D = abs(A.diagonal())
 
     S = coo_matrix(A)
@@ -462,8 +462,8 @@ def reference_symmetric_strength_of_connection(A, theta):
     mask  = S.row != S.col
     DD = array(D[S.row] * D[S.col]).reshape(-1,)
     # Note that abs takes the complex modulus element-wise
-    # Note that using the square of the measure is the technique used 
-    # in the C++ routine, so we use it here.  Doing otherwise causes errors. 
+    # Note that using the square of the measure is the technique used
+    # in the C++ routine, so we use it here.  Doing otherwise causes errors.
     mask &= (  (real(S.data)**2 + imag(S.data)**2) >= theta*theta*DD )
 
     S.row  = S.row[mask]
@@ -475,7 +475,7 @@ def reference_symmetric_strength_of_connection(A, theta):
     D.data[:] = csr_matrix(A).diagonal()
     S = S.tocsr() + D
 
-    # Strength represents "distance", so take the magnitude 
+    # Strength represents "distance", so take the magnitude
     S.data = abs(S.data)
 
     # Scale S by the largest magnitude entry in each row
@@ -485,11 +485,11 @@ def reference_symmetric_strength_of_connection(A, theta):
             val = numpy.abs(S.data[j])
             if val > largest_row_entry[i]:
                 largest_row_entry[i] = val
-    
-    largest_row_entry[ largest_row_entry != 0 ] = 1.0 / largest_row_entry[ largest_row_entry != 0 ] 
-    S = S.tocsr()   
+
+    largest_row_entry[ largest_row_entry != 0 ] = 1.0 / largest_row_entry[ largest_row_entry != 0 ]
+    S = S.tocsr()
     S = scale_rows(S, largest_row_entry, copy=True)
-     
+
     return S
 
 
@@ -497,11 +497,11 @@ def reference_symmetric_strength_of_connection(A, theta):
 def reference_evolution_strength_of_connection(A, B, epsilon=4.0, k=2, proj_type="l2"):
     """
     All python reference implementation for Evolution Strength of Connection
-    
+
     --> If doing imaginary test, both A and B should be imaginary type upon entry
     --> This does the "unsymmetrized" version of the ode measure
     """
-   
+
     #number of PDEs per point is defined implicitly by block size
     csrflag = isspmatrix_csr(A)
     if csrflag:
@@ -509,7 +509,7 @@ def reference_evolution_strength_of_connection(A, B, epsilon=4.0, k=2, proj_type
     else:
         numPDEs = A.blocksize[0]
         A = A.tocsr()
-    
+
     # Preliminaries
     near_zero = finfo(float).eps
     sqrt_near_zero = sqrt(sqrt(near_zero))
@@ -527,19 +527,19 @@ def reference_evolution_strength_of_connection(A, B, epsilon=4.0, k=2, proj_type
     Dinv[D == 0] = 1.0
     Dinv_A  = scale_rows(A, Dinv, copy=True)
     rho_DinvA = approximate_spectral_radius(Dinv_A)
-     
-    # Calculate (Atilde^k) naively  
+
+    # Calculate (Atilde^k) naively
     S = (scipy.sparse.eye(dimen,dimen,format="csr") - (1.0/rho_DinvA)*Dinv_A)
     Atilde = scipy.sparse.eye(dimen, dimen, format="csr")
     for i in range(k):
         Atilde = S*Atilde
-    
+
     # Strength Info should be row-based, so transpose Atilde
     Atilde = Atilde.T.tocsr()
 
     #====================================================================
     #Construct and apply a sparsity mask for Atilde that restricts Atilde^T to the nonzero pattern
-    #  of A, with the added constraint that row i of Atilde^T retains only the nonzeros that are 
+    #  of A, with the added constraint that row i of Atilde^T retains only the nonzeros that are
     #  also in the same PDE as i.
 
     mask = A.copy()
@@ -565,7 +565,7 @@ def reference_evolution_strength_of_connection(A, B, epsilon=4.0, k=2, proj_type
     # Calculate strength based on constrained min problem of
     LHS = mat(zeros((NullDim+1, NullDim+1)), dtype=A.dtype)
     RHS = mat(zeros((NullDim+1, 1)), dtype=A.dtype)
-    
+
     ##
     # Choose tolerance for dropping "numerically zero" values later
     t = Atilde.dtype.char
@@ -576,43 +576,43 @@ def reference_evolution_strength_of_connection(A, B, epsilon=4.0, k=2, proj_type
     tol = {0: feps*1e3, 1: eps*1e6, 2: geps*1e6}[_array_precision[t]]
 
     for i in range(dimen):
-       
+
         #Get rowptrs and col indices from Atilde
         rowstart = Atilde.indptr[i]
         rowend = Atilde.indptr[i+1]
         length = rowend - rowstart
         colindx = Atilde.indices[rowstart:rowend]
-       
+
         # Local diagonal of A is used for scale invariant min problem
         D_A = mat(eye(length, dtype=A.dtype))
         if proj_type == "D_A":
             for j in range(length):
-                D_A[j,j] = D[colindx[j]] 
+                D_A[j,j] = D[colindx[j]]
 
         #Find row i's position in colindx, matrix must have sorted column indices.
         iInRow = colindx.searchsorted(i)
-   
+
         if length <= NullDim:
-            #Do nothing, because the number of nullspace vectors will  
+            #Do nothing, because the number of nullspace vectors will
             #be able to perfectly approximate this row of Atilde.
             Atilde.data[rowstart:rowend] = 1.0
         else:
             #Grab out what we want from Atilde and B.  Put into zi, Bi
             zi = mat(Atilde.data[rowstart:rowend]).T
-           
+
             Bi = Bmat[colindx,:]
-   
+
             #Construct constrained min problem
             LHS[0:NullDim, 0:NullDim] = 2.0*Bi.H*D_A*Bi
-            LHS[0:NullDim, NullDim] = D_A[iInRow,iInRow]*Bi[iInRow,:].H  
+            LHS[0:NullDim, NullDim] = D_A[iInRow,iInRow]*Bi[iInRow,:].H
             LHS[NullDim, 0:NullDim] = Bi[iInRow,:]
             RHS[0:NullDim,0] = 2.0*Bi.H*D_A*zi
             RHS[NullDim,0] = zi[iInRow,0]
 
             #Calc Soln to Min Problem
             x = mat(pinv(LHS))*RHS
-            
-            # Calculate best constrained approximation to zi with span(Bi), and filter out 
+
+            # Calculate best constrained approximation to zi with span(Bi), and filter out
             # "numerically" zero values.  This is important because we look only at the
             # sign of values below when calculating angle.
             zihat = Bi*x[:-1]
@@ -621,27 +621,27 @@ def reference_evolution_strength_of_connection(A, B, epsilon=4.0, k=2, proj_type
             if numpy.iscomplexobj(zihat):
                 zihat.imag[ abs(zihat.imag) < tol_i ] = 0.0
 
-            # if angle in the complex plane between individual entries is 
+            # if angle in the complex plane between individual entries is
             #   greater than 90 degrees, then weak.  We can just look at the
             #   dot product to determine if angle is greater than 90 degrees.
             angle = real(ravel(zihat))*real(ravel(zi)) + imag(ravel(zihat))*imag(ravel(zi))
             angle = angle < 0.0
             angle = array(angle, dtype=bool)
-            
+
             #Calculate approximation ratio
             zi = zihat/zi
-           
+
             # If the ratio is small, then weak connection
-            zi[abs(zi) <= 1e-4] = 1e100 
+            zi[abs(zi) <= 1e-4] = 1e100
 
             # If angle is greater than 90 degrees, then weak connection
             zi[angle] = 1e100
 
             #Calculate Relative Approximation Error
             zi = abs(1.0 - zi)
-            
+
             # important to make "perfect" connections explicitly nonzero
-            zi[zi < sqrt_near_zero] = 1e-4                 
+            zi[zi < sqrt_near_zero] = 1e-4
 
             #Calculate and apply drop-tol.  Ignore diagonal by making it very large
             zi[iInRow] = 1e5
@@ -654,17 +654,17 @@ def reference_evolution_strength_of_connection(A, B, epsilon=4.0, k=2, proj_type
     # Clean up, and return Atilde
     Atilde.eliminate_zeros()
     Atilde.data = array(real(Atilde.data), dtype=float)
-    
+
     # Set diagonal to 1.0, as each point is strongly connected to itself.
     I = scipy.sparse.eye(dimen, dimen, format="csr")
     I.data -= Atilde.diagonal()
     Atilde = Atilde + I
 
-    # If converted BSR to CSR we return amalgamated matrix with the minimum nonzero for each block 
+    # If converted BSR to CSR we return amalgamated matrix with the minimum nonzero for each block
     # making up the nonzeros of Atilde
     if not csrflag:
         Atilde = Atilde.tobsr(blocksize=(numPDEs, numPDEs))
-        
+
         #Atilde = csr_matrix((data, row, col), shape=(*,*))
         Atilde = csr_matrix((array([ Atilde.data[i,:,:][Atilde.data[i,:,:].nonzero()].min() for i in range(Atilde.indices.shape[0]) ]), \
                              Atilde.indices, Atilde.indptr), shape=(Atilde.shape[0]/numPDEs, Atilde.shape[1]/numPDEs) )
@@ -672,7 +672,7 @@ def reference_evolution_strength_of_connection(A, B, epsilon=4.0, k=2, proj_type
     # Standardized strength values require small values be weak and large
     # values be strong.  So, we invert the algebraic distances computed here
     Atilde.data = 1.0/Atilde.data
-    
+
     # Scale Atilde by the largest magnitude entry in each row
     largest_row_entry = numpy.zeros((Atilde.shape[0],), dtype=Atilde.dtype)
     for i in range(Atilde.shape[0]):
@@ -680,19 +680,19 @@ def reference_evolution_strength_of_connection(A, B, epsilon=4.0, k=2, proj_type
             val = numpy.abs(Atilde.data[j])
             if val > largest_row_entry[i]:
                 largest_row_entry[i] = val
-    
-    largest_row_entry[ largest_row_entry != 0 ] = 1.0 / largest_row_entry[ largest_row_entry != 0 ] 
-    Atilde = Atilde.tocsr()   
+
+    largest_row_entry[ largest_row_entry != 0 ] = 1.0 / largest_row_entry[ largest_row_entry != 0 ]
+    Atilde = Atilde.tocsr()
     Atilde = scale_rows(Atilde, largest_row_entry, copy=True)
 
     return Atilde
 
 
 def reference_distance_strength_of_connection(A, V, theta=2.0, relative_drop=True):
-    ''' 
+    '''
     Reference routine for distance based strength of connection
     '''
-    
+
     # deal with the supernode case
     if isspmatrix_bsr(A):
         dimen = A.shape[0]/A.blocksize[0]
@@ -703,7 +703,7 @@ def reference_distance_strength_of_connection(A, V, theta=2.0, relative_drop=Tru
         dimen = A.shape[0]
         C = A.copy()
         C.data = numpy.real(C.data)
-    
+
     if V.shape[1] == 2:
         three_d = False
     elif V.shape[1] == 3:
@@ -716,7 +716,7 @@ def reference_distance_strength_of_connection(A, V, theta=2.0, relative_drop=Tru
         for j in range(rowstart, rowend):
             if C.indices[j] == i:
                 # ignore the diagonal entry by making it large
-                C.data[j] = numpy.finfo(numpy.float).max 
+                C.data[j] = numpy.finfo(numpy.float).max
             else:
                 # distance between entry j and i
                 pt_j = V[C.indices[j],:]
@@ -734,7 +734,7 @@ def reference_distance_strength_of_connection(A, V, theta=2.0, relative_drop=Tru
         else:
             this_row[this_row > theta] = 0.0
 
-        C.data[rowstart:rowend] = this_row 
+        C.data[rowstart:rowend] = this_row
 
     C.eliminate_zeros()
     C = C + 2.0*scipy.sparse.eye(C.shape[0], C.shape[1], format='csr')
@@ -742,7 +742,7 @@ def reference_distance_strength_of_connection(A, V, theta=2.0, relative_drop=Tru
     # Standardized strength values require small values be weak and large
     # values be strong.  So, we invert the distances.
     C.data = 1.0/C.data
-    
+
     # Scale C by the largest magnitude entry in each row
     largest_row_entry = numpy.zeros((C.shape[0],), dtype=C.dtype)
     for i in range(C.shape[0]):
@@ -750,9 +750,9 @@ def reference_distance_strength_of_connection(A, V, theta=2.0, relative_drop=Tru
             val = numpy.abs(C.data[j])
             if val > largest_row_entry[i]:
                 largest_row_entry[i] = val
-    
-    largest_row_entry[ largest_row_entry != 0 ] = 1.0 / largest_row_entry[ largest_row_entry != 0 ] 
-    C = C.tocsr()   
+
+    largest_row_entry[ largest_row_entry != 0 ] = 1.0 / largest_row_entry[ largest_row_entry != 0 ]
+    C = C.tocsr()
     C = scale_rows(C, largest_row_entry, copy=True)
 
     return C
