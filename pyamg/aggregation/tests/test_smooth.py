@@ -331,6 +331,14 @@ class TestEnergyMin(TestCase):
         cases.append((iA, iB, ('energy', {'krylov': 'cgnr'})))
         cases.append((iA.tobsr(blocksize=(5, 5)), B,
                      ('energy',
+                      {'krylov': 'cgnr', 'degree': 2, 'maxiter': 3,
+                       'Pfilter': ('rowwise', {'theta': 0.05})})))
+        cases.append((iA.tobsr(blocksize=(5, 5)), B,
+                     ('energy',
+                      {'krylov': 'cgnr', 'degree': 2, 'maxiter': 3,
+                       'Pfilter': ('columnwise', {'theta': 0.05})})))
+        cases.append((iA.tobsr(blocksize=(5, 5)), B,
+                     ('energy',
                       {'krylov': 'cgnr', 'degree': 2, 'maxiter': 3})))
         cases.append((iA.tobsr(blocksize=(5, 5)), iB,
                      ('energy', {'krylov': 'cgnr'})))
@@ -366,6 +374,15 @@ class TestEnergyMin(TestCase):
                      ('energy',
                       {'krylov': 'gmres', 'degree': 2, 'maxiter': 3})))
 
+        cases.append((iA.tobsr(blocksize=(4, 4)), iB,
+                     ('energy',
+                      {'krylov': 'gmres', 'degree': 2, 'maxiter': 3,
+                       'Pfilter': ('rowwise', {'theta': 0.05})})))
+        cases.append((iA.tobsr(blocksize=(4, 4)), iB,
+                     ('energy',
+                      {'krylov': 'gmres', 'degree': 2, 'maxiter': 3,
+                       'Pfilter': ('columnwise', {'theta': 0.05})})))
+
         A = gauge_laplacian(10, spacing=1.0, beta=0.21)
         B = ones((A.shape[0], 1))
         cases.append((A, iB, ('jacobi',
@@ -379,12 +396,30 @@ class TestEnergyMin(TestCase):
 
         cases.append((A.tobsr(blocksize=(2, 2)), B,
                      ('energy',
+                      {'krylov': 'cgnr', 'degree': 2, 'maxiter': 3,
+                       'Pfilter': ('rowwise', {'theta': 0.05})})))
+        cases.append((A.tobsr(blocksize=(2, 2)), B,
+                     ('energy',
+                      {'krylov': 'cgnr', 'degree': 2, 'maxiter': 3,
+                       'Pfilter': ('columnwise', {'theta': 0.05})})))
+
+        cases.append((A.tobsr(blocksize=(2, 2)), B,
+                     ('energy',
                       {'krylov': 'cgnr', 'degree': 2, 'maxiter': 3})))
         cases.append((A.tobsr(blocksize=(2, 2)), iB,
                      ('energy', {'krylov': 'cg'})))
         cases.append((A.tobsr(blocksize=(2, 2)), B,
                      ('energy',
                       {'krylov': 'gmres', 'degree': 2, 'maxiter': 3})))
+
+        cases.append((A.tobsr(blocksize=(2, 2)), B,
+                     ('energy',
+                      {'krylov': 'gmres', 'degree': 2, 'maxiter': 3,
+                       'Pfilter': ('rowwise', {'theta': 0.05})})))
+        cases.append((A.tobsr(blocksize=(2, 2)), B,
+                     ('energy',
+                      {'krylov': 'gmres', 'degree': 2, 'maxiter': 3,
+                       'Pfilter': ('columnwise', {'theta': 0.05})})))
 
         #
         A, B = linear_elasticity((10, 10))
@@ -396,6 +431,11 @@ class TestEnergyMin(TestCase):
                              {'filter': True, 'weighting': 'block'})))
 
         cases.append((A, B, ('energy', {'degree': 2})))
+        cases.append((A, B, ('energy',
+                     {'degree': 3, 'Pfilter': ('rowwise', {'theta': 0.05})})))
+        cases.append((A, B, ('energy',
+                     {'degree': 3,
+                      'Pfilter': ('columnwise', {'theta': 0.05})})))
         cases.append((A, B, ('energy', {'krylov': 'cgnr'})))
         cases.append((A, B, ('energy', {'krylov': 'gmres', 'degree': 2})))
 
