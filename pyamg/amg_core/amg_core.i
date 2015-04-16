@@ -229,6 +229,7 @@ INSTANTIATE_BOTH(rs_direct_interpolation_pass2)
 INSTANTIATE_COMPLEX(satisfy_constraints_helper)
 INSTANTIATE_COMPLEX(calc_BtB)
 INSTANTIATE_COMPLEX(incomplete_mat_mult_bsr)
+INSTANTIATE_COMPLEX(truncate_rows_csr)
 
 INSTANTIATE_COMPLEX(maximum_row_value)
 INSTANTIATE_COMPLEX(pinv_array)
