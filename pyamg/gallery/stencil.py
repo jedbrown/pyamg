@@ -96,7 +96,7 @@ def stencil_grid(S, grid, dtype=None, format=None):
         # i = i // 2
         # i = i - (s // 2)
     for stride, coords in zip(strides, reversed(indices)):
-        diags += stride * coords
+        diags += diags.dtype.type(stride) * coords
 
     data = S[S != 0].repeat(N_v).reshape(N_s, N_v)
 
